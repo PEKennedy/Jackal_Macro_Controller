@@ -6,6 +6,12 @@ import time
 from kortex_driver.srv import *
 from kortex_driver.msg import *
 
+# import controller for example like https://andrewdai.co/xbox-controller-ros.html#rosjoy
+from sensor_msgs.msg import Joy
+# debug
+from pprint import pprint
+
+
 #derived from the ExampleFullArmMove python class
 
 class Control:
@@ -222,6 +228,13 @@ class Control:
             time.sleep(0.5)
             return True
 
+    def handle_controller(self, data):
+        pprint(vars(data))
+        btn0 = data.buttons[0]
+        ax0 = data.axes[0]
+        rospy.loginfo("btn0 is: " + str(btn0) + " ax0 is" + str(ax0))
+
+
     def main(self):
         # For testing purposes
         success = self.is_init_success
@@ -248,8 +261,14 @@ class Control:
 
             #*******************************************************************************
             # Example of gripper command
-            # Let's fully open the gripper
-            rospy.loginfo("do arm")
+
+            rospy.Subscriber("joy", Joy, self.handle_controller)
+
+            rospy.loginfo("do gripper test")
+            escaped = False
+            #while not escaped:
+            #    if()
+
             i = 0
             while i < 5:
                 rospy.loginfo("iter %i", i)

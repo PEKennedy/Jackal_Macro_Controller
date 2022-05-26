@@ -249,34 +249,47 @@ class Control:
             #*******************************************************************************
             # Example of gripper command
             # Let's fully open the gripper
-            if self.is_gripper_present:
-                success &= self.example_send_gripper_command(0.0)
-            else:
-                rospy.logwarn("No gripper is present on the arm.")  
+            rospy.loginfo("do arm")
+            i = 0
+            while i < 5:
+                rospy.loginfo("iter %i", i)
+                if self.is_gripper_present:
+                    success &= self.example_send_gripper_command(0.0)
+                else:
+                    rospy.logwarn("No gripper is present on the arm.")
+
+                if self.is_gripper_present:
+                    success &= self.example_send_gripper_command(1.0)
+                else:
+                    rospy.logwarn("No gripper is present on the arm.")
+                rospy.sleep(0.5)
+                i += 1
+
+
             #*******************************************************************************
 
             #*******************************************************************************
             # Set the reference frame to "Mixed"
-            success &= self.example_set_cartesian_reference_frame()
+            #success &= self.example_set_cartesian_reference_frame()
 
             # Example of cartesian pose
             # Let's make it move in Z
-            success &= self.example_send_cartesian_pose()
+            #success &= self.example_send_cartesian_pose()
             #*******************************************************************************
 
             #*******************************************************************************
             # Example of angular position
             # Let's send the arm to vertical position
-            success &= self.example_send_joint_angles()
+            #success &= self.example_send_joint_angles()
             #*******************************************************************************
 
             #*******************************************************************************
             # Example of gripper command
             # Let's close the gripper at 50%
-            if self.is_gripper_present:
-                success &= self.example_send_gripper_command(0.5)
-            else:
-                rospy.logwarn("No gripper is present on the arm.")    
+            #if self.is_gripper_present:
+            #    success &= self.example_send_gripper_command(0.5)
+            #else:
+            #    rospy.logwarn("No gripper is present on the arm.")
             #*******************************************************************************
         
         # For testing purposes

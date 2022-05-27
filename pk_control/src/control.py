@@ -15,6 +15,9 @@ from pprint import pprint
 #derived from the ExampleFullArmMove python class
 
 class Control:
+    escaped = False
+    gripper_closed = False
+
     def __init__(self):
         try:
             rospy.init_node('example_full_arm_movement_python')
@@ -228,11 +231,44 @@ class Control:
             time.sleep(0.5)
             return True
 
+        #button mapping
+        # 0==A, 1==B, 2==X, 3==Y
+        # 4==LB  5==RB
+        #stickBtnL== 9, STBR == 10
+        #Start Btn ==7 , select==6, Xbox==8
+
+        #axes:
+        #dpad X,Y == 6,7 (Y inverted)
+        #L stick X,Y ==0,1 (Y inverted)
+        #R stick X,Y ==3,4 (Y inverted)
+        #LT==2 , RT==5
+
     def handle_controller(self, data):
-        pprint(vars(data))
-        btn0 = data.buttons[0]
+        #pprint(vars(data))
+        #rospy.loginfo(data)
+        btnA = data.buttons[0]
+        btnB = data.buttons[1]
         ax0 = data.axes[0]
-        rospy.loginfo("btn0 is: " + str(btn0) + " ax0 is" + str(ax0))
+
+        if btnA == 1:
+            rospy.loginfo("Escaped")
+            self.escaped = True
+
+        if btnB == 1:
+            if self.gripper_closed:
+                self.example_send_gripper_command(1.0)
+                self.gripper_closed = False
+                rospy.loginfo("open")
+            else:
+                self.example_send_gripper_command(0.0)
+                self.gripper_closed = True
+                rospy.loginfo("close")
+
+
+
+
+
+        # rospy.loginfo("btnA is: " + str(btnA) + " ax0 is" + str(ax0))
 
 
     def main(self):
@@ -262,27 +298,37 @@ class Control:
             #*******************************************************************************
             # Example of gripper command
 
+            success &= self.example_send_gripper_command(0.0)
+            self.gripper_closed = False
+
+
+
             rospy.Subscriber("joy", Joy, self.handle_controller)
 
             rospy.loginfo("do gripper test")
-            escaped = False
-            #while not escaped:
-            #    if()
+            self.escaped = False
 
             i = 0
-            while i < 5:
-                rospy.loginfo("iter %i", i)
-                if self.is_gripper_present:
-                    success &= self.example_send_gripper_command(0.0)
-                else:
-                    rospy.logwarn("No gripper is present on the arm.")
-
-                if self.is_gripper_present:
-                    success &= self.example_send_gripper_command(1.0)
-                else:
-                    rospy.logwarn("No gripper is present on the arm.")
+            while not self.escaped:
+                #rospy.loginfo("iter %i", i)
+                #rospy.loginfo(self.escaped)
                 rospy.sleep(0.5)
                 i += 1
+
+            # i = 0
+            # while i < 5:
+            #     rospy.loginfo("iter %i", i)
+            #     if self.is_gripper_present:
+            #         success &= self.example_send_gripper_command(0.0)
+            #     else:
+            #         rospy.logwarn("No gripper is present on the arm.")
+            #
+            #     if self.is_gripper_present:
+            #         success &= self.example_send_gripper_command(1.0)
+            #     else:
+            #         rospy.logwarn("No gripper is present on the arm.")
+            #     rospy.sleep(0.5)
+            #     i += 1
 
 
             #*******************************************************************************

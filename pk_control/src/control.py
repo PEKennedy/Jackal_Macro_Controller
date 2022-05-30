@@ -9,7 +9,7 @@ from kortex_driver.msg import *
 # import controller for example like https://andrewdai.co/xbox-controller-ros.html#rosjoy
 from sensor_msgs.msg import Joy
 # debug
-from pprint import pprint
+# from pprint import pprint
 
 
 #derived from the ExampleFullArmMove python class

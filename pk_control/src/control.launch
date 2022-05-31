@@ -5,7 +5,8 @@
     <arg name="start_delay_seconds" default="0"/>
 
     <!-- Launch the example in that namespace -->
-    <node name="pk_arm_controller" pkg="pk_control" type="control.py" output="screen" launch-prefix="bash -c 'sleep $(arg start_delay_seconds); $0 $@' ">
+    <node name="pk_arm_controller" pkg="pk_control" type="control.py" output="screen"
+    launch-prefix="bash -c 'sleep $(arg start_delay_seconds); $0 $@' " ns="$(arg robot_name)">
         <param name="robot_name" value="$(arg robot_name)"/>
     </node>
 

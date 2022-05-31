@@ -1,251 +1,242 @@
 #!/usr/bin/env python3
 
+# Software License Agreement (BSD License)
+#
+# Copyright (c) 2013, SRI International
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+#  * Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+#  * Redistributions in binary form must reproduce the above
+#    copyright notice, this list of conditions and the following
+#    disclaimer in the documentation and/or other materials provided
+#    with the distribution.
+#  * Neither the name of SRI International nor the names of its
+#    contributors may be used to endorse or promote products derived
+#    from this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+# COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+# ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+#
+# Author: Acorn Pooley, Mike Lautman
+
+# Inspired from http://docs.ros.org/kinetic/api/moveit_tutorials/html/doc/move_group_python_interface/move_group_python_interface_tutorial.html
+# Modified by Alexandre Vannobel to test the FollowJointTrajectory Action Server for the Kinova Gen3 robot
+
+# To run this node in a given namespace with rosrun (for example 'my_gen3'), start a Kortex driver and then run :
+# rosrun kortex_examples example_moveit_trajectories.py __ns:=my_gen3
+
 import sys
-import rospy
 import time
-from kortex_driver.srv import *
-from kortex_driver.msg import *
+import rospy
+import moveit_commander
+import moveit_msgs.msg
+import geometry_msgs.msg
+from math import pi
+from std_srvs.srv import Empty
 
-# import controller for example like https://andrewdai.co/xbox-controller-ros.html#rosjoy
 from sensor_msgs.msg import Joy
-# debug
-# from pprint import pprint
+import copy
 
-
-#derived from the ExampleFullArmMove python class
-
-class Control:
+class ExampleMoveItTrajectories(object):
     escaped = False
     gripper_closed = False
+    is_controller_present = False
+    """ExampleMoveItTrajectories"""
 
     def __init__(self):
+
+        # Initialize the node
+        super(ExampleMoveItTrajectories, self).__init__()
+        moveit_commander.roscpp_initialize(sys.argv)
+        rospy.init_node('example_move_it_trajectories')
+
         try:
-            rospy.init_node('example_full_arm_movement_python')
+            self.is_gripper_present = rospy.get_param(rospy.get_namespace() + "is_gripper_present", False)
+            if self.is_gripper_present:
+                gripper_joint_names = rospy.get_param(rospy.get_namespace() + "gripper_joint_names", [])
+                self.gripper_joint_name = gripper_joint_names[0]
+            else:
+                self.gripper_joint_name = ""
+            self.degrees_of_freedom = rospy.get_param(rospy.get_namespace() + "degrees_of_freedom", 7)
 
-            self.HOME_ACTION_IDENTIFIER = 2
+            # Create the MoveItInterface necessary objects
+            arm_group_name = "arm"
+            self.robot = moveit_commander.RobotCommander("robot_description")
+            self.scene = moveit_commander.PlanningSceneInterface(ns=rospy.get_namespace())
+            self.arm_group = moveit_commander.MoveGroupCommander(arm_group_name, ns=rospy.get_namespace())
+            self.display_trajectory_publisher = rospy.Publisher(
+                rospy.get_namespace() + 'move_group/display_planned_path',
+                moveit_msgs.msg.DisplayTrajectory,
+                queue_size=20)
 
-            # Get node params
-            self.robot_name = rospy.get_param('~robot_name', "my_gen3_lite")
-            self.degrees_of_freedom = rospy.get_param("/" + self.robot_name + "/degrees_of_freedom", 7)
-            self.is_gripper_present = rospy.get_param("/" + self.robot_name + "/is_gripper_present", False)
+            if self.is_gripper_present:
+                gripper_group_name = "gripper"
+                self.gripper_group = moveit_commander.MoveGroupCommander(gripper_group_name, ns=rospy.get_namespace())
 
-            rospy.loginfo("Using robot_name " + self.robot_name + " , robot has " + str(self.degrees_of_freedom) + " degrees of freedom and is_gripper_present is " + str(self.is_gripper_present))
+            #self.is_controller_present = rospy.has_param("joy") #you can't check if a topic exists really
+            if self.is_controller_present:
+                rospy.Subscriber("joy", Joy, self.handle_controller)
+                rospy.loginfo("Using Controller")
+            else:
+                rospy.loginfo("Using Keyboard")
+                # see https://answers.ros.org/question/295940/subscribe-to-actions-on-keyboard-press-key/
+                # which links to https://github.com/ros-teleop/teleop_twist_keyboard/blob/master/teleop_twist_keyboard.py
+                # for how to get keyboard started
 
-            # Init the action topic subscriber
-            self.action_topic_sub = rospy.Subscriber("/" + self.robot_name + "/action_topic", ActionNotification, self.cb_action_topic)
-            self.last_action_notif_type = None
-
-            # Init the services
-            clear_faults_full_name = '/' + self.robot_name + '/base/clear_faults'
-            rospy.wait_for_service(clear_faults_full_name)
-            self.clear_faults = rospy.ServiceProxy(clear_faults_full_name, Base_ClearFaults)
-
-            read_action_full_name = '/' + self.robot_name + '/base/read_action'
-            rospy.wait_for_service(read_action_full_name)
-            self.read_action = rospy.ServiceProxy(read_action_full_name, ReadAction)
-
-            execute_action_full_name = '/' + self.robot_name + '/base/execute_action'
-            rospy.wait_for_service(execute_action_full_name)
-            self.execute_action = rospy.ServiceProxy(execute_action_full_name, ExecuteAction)
-
-            set_cartesian_reference_frame_full_name = '/' + self.robot_name + '/control_config/set_cartesian_reference_frame'
-            rospy.wait_for_service(set_cartesian_reference_frame_full_name)
-            self.set_cartesian_reference_frame = rospy.ServiceProxy(set_cartesian_reference_frame_full_name, SetCartesianReferenceFrame)
-
-            play_cartesian_trajectory_full_name = '/' + self.robot_name + '/base/play_cartesian_trajectory'
-            rospy.wait_for_service(play_cartesian_trajectory_full_name)
-            self.play_cartesian_trajectory = rospy.ServiceProxy(play_cartesian_trajectory_full_name, PlayCartesianTrajectory)
-
-            play_joint_trajectory_full_name = '/' + self.robot_name + '/base/play_joint_trajectory'
-            rospy.wait_for_service(play_joint_trajectory_full_name)
-            self.play_joint_trajectory = rospy.ServiceProxy(play_joint_trajectory_full_name, PlayJointTrajectory)
-
-            send_gripper_command_full_name = '/' + self.robot_name + '/base/send_gripper_command'
-            rospy.wait_for_service(send_gripper_command_full_name)
-            self.send_gripper_command = rospy.ServiceProxy(send_gripper_command_full_name, SendGripperCommand)
-
-            activate_publishing_of_action_notification_full_name = '/' + self.robot_name + '/base/activate_publishing_of_action_topic'
-            rospy.wait_for_service(activate_publishing_of_action_notification_full_name)
-            self.activate_publishing_of_action_notification = rospy.ServiceProxy(activate_publishing_of_action_notification_full_name, OnNotificationActionTopic)
-        except:
+            rospy.loginfo("Initializing node in namespace " + rospy.get_namespace())
+        except Exception as e:
+            print(e)
             self.is_init_success = False
         else:
             self.is_init_success = True
 
-    def cb_action_topic(self, notif):
-        self.last_action_notif_type = notif.action_event
+    def reach_named_position(self, target):
+        arm_group = self.arm_group
 
-    def wait_for_action_end_or_abort(self):
-        while not rospy.is_shutdown():
-            if (self.last_action_notif_type == ActionEvent.ACTION_END):
-                rospy.loginfo("Received ACTION_END notification")
-                return True
-            elif (self.last_action_notif_type == ActionEvent.ACTION_ABORT):
-                rospy.loginfo("Received ACTION_ABORT notification")
-                return False
-            else:
-                time.sleep(0.01)
+        # Going to one of those targets
+        rospy.loginfo("Going to named target " + target)
+        # Set the target
+        arm_group.set_named_target(target)
+        # Plan the trajectory
+        (success_flag, trajectory_message, planning_time, error_code) = arm_group.plan()
+        # Execute the trajectory and block while it's not finished
+        return arm_group.execute(trajectory_message, wait=True)
 
-    def example_subscribe_to_a_robot_notification(self):
-        # Activate the publishing of the ActionNotification
-        req = OnNotificationActionTopicRequest()
-        rospy.loginfo("Activating the action notifications...")
+    def reach_joint_angles(self, tolerance):
+        arm_group = self.arm_group
+        success = True
+
+        # Get the current joint positions
+        joint_positions = arm_group.get_current_joint_values()
+        rospy.loginfo("Printing current joint positions before movement :")
+        for p in joint_positions: rospy.loginfo(p)
+
+        # Set the goal joint tolerance
+        self.arm_group.set_goal_joint_tolerance(tolerance)
+
+        # Set the joint target configuration
+        if self.degrees_of_freedom == 7:
+            joint_positions[0] = pi / 2
+            joint_positions[1] = 0
+            joint_positions[2] = pi / 4
+            joint_positions[3] = -pi / 4
+            joint_positions[4] = 0
+            joint_positions[5] = pi / 2
+            joint_positions[6] = 0.2
+        elif self.degrees_of_freedom == 6:
+            joint_positions[0] = 0
+            joint_positions[1] = 0
+            joint_positions[2] = pi / 2
+            joint_positions[3] = pi / 4
+            joint_positions[4] = 0
+            joint_positions[5] = pi / 2
+        arm_group.set_joint_value_target(joint_positions)
+
+        # Plan and execute in one command
+        success &= arm_group.go(wait=True)
+
+        # Show joint positions after movement
+        new_joint_positions = arm_group.get_current_joint_values()
+        rospy.loginfo("Printing current joint positions after movement :")
+        for p in new_joint_positions: rospy.loginfo(p)
+        return success
+
+    def get_cartesian_pose(self):
+        arm_group = self.arm_group
+
+        # Get the current pose and display it
+        pose = arm_group.get_current_pose()
+        rospy.loginfo("Actual cartesian pose is : ")
+        rospy.loginfo(pose.pose)
+
+        return pose.pose
+
+    def reach_cartesian_pose(self, pose, tolerance, constraints):
+        arm_group = self.arm_group
+
+        # Set the tolerance
+        arm_group.set_goal_position_tolerance(tolerance)
+
+        # Set the trajectory constraint if one is specified
+        if constraints is not None:
+            arm_group.set_path_constraints(constraints)
+
+        # Get the current Cartesian Position
+        arm_group.set_pose_target(pose)
+
+        # Plan and execute
+        rospy.loginfo("Planning and going to the Cartesian Pose")
+        return arm_group.go(wait=True)
+
+    def reach_gripper_position(self, relative_position):
+        gripper_group = self.gripper_group
+
+        # We only have to move this joint because all others are mimic!
+        gripper_joint = self.robot.get_joint(self.gripper_joint_name)
+        gripper_max_absolute_pos = gripper_joint.max_bound()
+        gripper_min_absolute_pos = gripper_joint.min_bound()
         try:
-            self.activate_publishing_of_action_notification(req)
-        except rospy.ServiceException:
-            rospy.logerr("Failed to call OnNotificationActionTopic")
+            rospy.loginfo(
+                relative_position * (gripper_max_absolute_pos - gripper_min_absolute_pos) + gripper_min_absolute_pos)
+            val = gripper_joint.move(
+                relative_position * (gripper_max_absolute_pos - gripper_min_absolute_pos) + gripper_min_absolute_pos,
+                True)
+            return val
+        except:
             return False
-        else:
-            rospy.loginfo("Successfully activated the Action Notifications!")
 
-        rospy.sleep(1.0)
-        return True
+    # https://ros-planning.github.io/moveit_tutorials/doc/move_group_python_interface/move_group_python_interface_tutorial.html#getting-started
+    # Under Cartesian paths, demonstrates moving along waypoints
+    def follow_path_ex(self):
+        waypoints = []
 
-    def example_clear_faults(self):
-        try:
-            self.clear_faults()
-        except rospy.ServiceException:
-            rospy.logerr("Failed to call ClearFaults")
-            return False
-        else:
-            rospy.loginfo("Cleared the faults successfully")
-            rospy.sleep(2.5)
-            return True
+        # wpose = move_group.get_current_pose().pose
+        wpose = self.get_cartesian_pose()
+        wpose.position.z -=  0.1  # First move up (z)
+        wpose.position.y +=  0.2  # and sideways (y)
+        waypoints.append(copy.deepcopy(wpose))
 
-    def example_home_the_robot(self):
-        # The Home Action is used to home the robot. It cannot be deleted and is always ID #2:
-        self.last_action_notif_type = None
-        req = ReadActionRequest()
-        req.input.identifier = self.HOME_ACTION_IDENTIFIER
-        try:
-            res = self.read_action(req)
-        except rospy.ServiceException:
-            rospy.logerr("Failed to call ReadAction")
-            return False
-        # Execute the HOME action if we could read it
-        else:
-            # What we just read is the input of the ExecuteAction service
-            req = ExecuteActionRequest()
-            req.input = res.output
-            rospy.loginfo("Sending the robot home...")
-            try:
-                self.execute_action(req)
-            except rospy.ServiceException:
-                rospy.logerr("Failed to call ExecuteAction")
-                return False
-            else:
-                return self.wait_for_action_end_or_abort()
+        wpose.position.x +=  0.1  # Second move forward/backwards in (x)
+        waypoints.append(copy.deepcopy(wpose))
 
-    def example_set_cartesian_reference_frame(self):
-        self.last_action_notif_type = None
-        # Prepare the request with the frame we want to set
-        req = SetCartesianReferenceFrameRequest()
-        req.input.reference_frame = CartesianReferenceFrame.CARTESIAN_REFERENCE_FRAME_MIXED
+        wpose.position.y -=  0.1  # Third move sideways (y)
+        waypoints.append(copy.deepcopy(wpose))
 
-        # Call the service
-        try:
-            self.set_cartesian_reference_frame()
-        except rospy.ServiceException:
-            rospy.logerr("Failed to call SetCartesianReferenceFrame")
-            return False
-        else:
-            rospy.loginfo("Set the cartesian reference frame successfully")
+        (plan, fraction) = self.arm_group.compute_cartesian_path(
+            waypoints, 0.01, 0.0  # waypoints to follow  # eef_step
+        )  # jump_threshold
+        return plan, fraction
 
-        # Wait a bit
-        rospy.sleep(0.25)
-        return True
+            # button mapping
+            # 0==A, 1==B, 2==X, 3==Y
+            # 4==LB  5==RB
+            # stickBtnL== 9, STBR == 10
+            # Start Btn ==7 , select==6, Xbox==8
 
-    def example_send_cartesian_pose(self):
-        self.last_action_notif_type = None
-        # Get the actual cartesian pose to increment it
-        # You can create a subscriber to listen to the base_feedback
-        # Here we only need the latest message in the topic though
-        feedback = rospy.wait_for_message("/" + self.robot_name + "/base_feedback", BaseCyclic_Feedback)
-
-        req = PlayCartesianTrajectoryRequest()
-        req.input.target_pose.x = feedback.base.commanded_tool_pose_x
-        req.input.target_pose.y = feedback.base.commanded_tool_pose_y
-        req.input.target_pose.z = feedback.base.commanded_tool_pose_z + 0.10
-        req.input.target_pose.theta_x = feedback.base.commanded_tool_pose_theta_x
-        req.input.target_pose.theta_y = feedback.base.commanded_tool_pose_theta_y
-        req.input.target_pose.theta_z = feedback.base.commanded_tool_pose_theta_z
-
-        pose_speed = CartesianSpeed()
-        pose_speed.translation = 0.1
-        pose_speed.orientation = 15
-
-        # The constraint is a one_of in Protobuf. The one_of concept does not exist in ROS
-        # To specify a one_of, create it and put it in the appropriate list of the oneof_type member of the ROS object : 
-        req.input.constraint.oneof_type.speed.append(pose_speed)
-
-        # Call the service
-        rospy.loginfo("Sending the robot to the cartesian pose...")
-        try:
-            self.play_cartesian_trajectory(req)
-        except rospy.ServiceException:
-            rospy.logerr("Failed to call PlayCartesianTrajectory")
-            return False
-        else:
-            return self.wait_for_action_end_or_abort()
-
-    def example_send_joint_angles(self):
-        self.last_action_notif_type = None
-        # Create the list of angles
-        req = PlayJointTrajectoryRequest()
-        # Here the arm is vertical (all zeros)
-        for i in range(self.degrees_of_freedom):
-            temp_angle = JointAngle() 
-            temp_angle.joint_identifier = i
-            temp_angle.value = 0.0
-            req.input.joint_angles.joint_angles.append(temp_angle)
-        
-        # Send the angles
-        rospy.loginfo("Sending the robot vertical...")
-        try:
-            self.play_joint_trajectory(req)
-        except rospy.ServiceException:
-            rospy.logerr("Failed to call PlayJointTrajectory")
-            return False
-        else:
-            return self.wait_for_action_end_or_abort()
-
-    def example_send_gripper_command(self, value):
-        # Initialize the request
-        # Close the gripper
-        req = SendGripperCommandRequest()
-        finger = Finger()
-        finger.finger_identifier = 0
-        finger.value = value
-        req.input.gripper.finger.append(finger)
-        req.input.mode = GripperMode.GRIPPER_POSITION
-
-        rospy.loginfo("Sending the gripper command...")
-
-        # Call the service 
-        try:
-            self.send_gripper_command(req)
-        except rospy.ServiceException:
-            rospy.logerr("Failed to call SendGripperCommand")
-            return False
-        else:
-            time.sleep(0.5)
-            return True
-
-        #button mapping
-        # 0==A, 1==B, 2==X, 3==Y
-        # 4==LB  5==RB
-        #stickBtnL== 9, STBR == 10
-        #Start Btn ==7 , select==6, Xbox==8
-
-        #axes:
-        #dpad X,Y == 6,7 (Y inverted)
-        #L stick X,Y ==0,1 (Y inverted)
-        #R stick X,Y ==3,4 (Y inverted)
-        #LT==2 , RT==5
+            # axes:
+            # dpad X,Y == 6,7 (Y inverted)
+            # L stick X,Y ==0,1 (Y inverted)
+            # R stick X,Y ==3,4 (Y inverted)
+            # LT==2 , RT==5
 
     def handle_controller(self, data):
-        #pprint(vars(data))
-        #rospy.loginfo(data)
+        # pprint(vars(data))
+        # rospy.loginfo(data)
         btnA = data.buttons[0]
         btnB = data.buttons[1]
         ax0 = data.axes[0]
@@ -256,114 +247,114 @@ class Control:
 
         if btnB == 1:
             if self.gripper_closed:
-                self.example_send_gripper_command(1.0)
+                # self.example_send_gripper_command(1.0)
+                example.reach_gripper_position(1.0)
                 self.gripper_closed = False
                 rospy.loginfo("open")
             else:
-                self.example_send_gripper_command(0.0)
+                # self.example_send_gripper_command(0.0)
+                example.reach_gripper_position(0)
                 self.gripper_closed = True
                 rospy.loginfo("close")
-
-
-
-
-
         # rospy.loginfo("btnA is: " + str(btnA) + " ax0 is" + str(ax0))
 
 
-    def main(self):
-        # For testing purposes
-        success = self.is_init_success
-        try:
-            rospy.delete_param("/kortex_examples_test_results/full_arm_movement_python")
-        except:
-            pass
+def main():
+    example = ExampleMoveItTrajectories()
 
-        if success:
-            #*******************************************************************************
-            # Make sure to clear the robot's faults else it won't move if it's already in fault
-            success &= self.example_clear_faults()
-            #*******************************************************************************
-            
-            #*******************************************************************************
-            # Activate the action notifications
-            success &= self.example_subscribe_to_a_robot_notification()
-            #*******************************************************************************
+    # For testing purposes
+    success = example.is_init_success
+    rospy.loginfo(success)
+    try:
+        rospy.delete_param("/kortex_examples_test_results/moveit_general_python")
+    except:
+        pass
 
-            #*******************************************************************************
-            # Move the robot to the Home position with an Action
-            success &= self.example_home_the_robot()
-            #*******************************************************************************
+    if success:
+        rospy.loginfo("Reaching Named Target Home...")
+        success &= example.reach_named_position("home")
+        print(success)
 
-            #*******************************************************************************
-            # Example of gripper command
+    if example.is_gripper_present and success:
 
-            success &= self.example_send_gripper_command(0.0)
-            self.gripper_closed = False
-
-
-
-            rospy.Subscriber("joy", Joy, self.handle_controller)
-
-            rospy.loginfo("do gripper test")
+        """Our gripper test"""
+        if example.is_controller_present:
+            rospy.loginfo("Control gripper with controller")
             self.escaped = False
 
             i = 0
             while not self.escaped:
-                #rospy.loginfo("iter %i", i)
-                #rospy.loginfo(self.escaped)
+                # rospy.loginfo("iter %i", i)
+                # rospy.loginfo(self.escaped)
                 rospy.sleep(0.5)
                 i += 1
+        else:
+            rospy.loginfo("demo gripper")
 
-            # i = 0
-            # while i < 5:
-            #     rospy.loginfo("iter %i", i)
-            #     if self.is_gripper_present:
-            #         success &= self.example_send_gripper_command(0.0)
-            #     else:
-            #         rospy.logwarn("No gripper is present on the arm.")
-            #
-            #     if self.is_gripper_present:
-            #         success &= self.example_send_gripper_command(1.0)
-            #     else:
-            #         rospy.logwarn("No gripper is present on the arm.")
-            #     rospy.sleep(0.5)
-            #     i += 1
+            #pose_to = example.get_cartesian_pose()
+            #pose_to.position.z += 0.2
+            #success &= example.reach_cartesian_pose(pose=pose_to, tolerance=0.01, constraints=None)
+            #print(success)
 
+            rospy.loginfo("do waypoint example")
+            plan, x = example.follow_path_ex()
+            example.arm_group.execute(plan, wait=True)
 
-            #*******************************************************************************
+            rospy.loginfo("Opening the gripper...")
+            success &= example.reach_gripper_position(0)
+            print(success)
 
-            #*******************************************************************************
-            # Set the reference frame to "Mixed"
-            #success &= self.example_set_cartesian_reference_frame()
+            rospy.loginfo("Closing the gripper 50%...")
+            success &= example.reach_gripper_position(0.5)
+            print(success)
 
-            # Example of cartesian pose
-            # Let's make it move in Z
-            #success &= self.example_send_cartesian_pose()
-            #*******************************************************************************
+    # For testing purposes
+    rospy.set_param("/kortex_examples_test_results/moveit_general_python", success)
 
-            #*******************************************************************************
-            # Example of angular position
-            # Let's send the arm to vertical position
-            #success &= self.example_send_joint_angles()
-            #*******************************************************************************
+    if not success:
+        rospy.logerr("The example encountered an error.")
 
-            #*******************************************************************************
-            # Example of gripper command
-            # Let's close the gripper at 50%
-            #if self.is_gripper_present:
-            #    success &= self.example_send_gripper_command(0.5)
-            #else:
-            #    rospy.logwarn("No gripper is present on the arm.")
-            #*******************************************************************************
-        
-        # For testing purposes
-        #rospy.set_param("/kortex_examples_test_results/full_arm_movement_python", success)
-
-        if not success:
-            rospy.logerr("The example encountered an error.")
+if __name__ == '__main__':
+    main()
 
 
-if __name__ == "__main__":
-    ex = Control()
-    ex.main()
+
+    """
+  if success:
+    rospy.loginfo("Reaching Named Target Vertical...")
+    success &= example.reach_named_position("vertical")
+    print (success)
+
+  if success:
+    rospy.loginfo("Reaching Joint Angles...")  
+    success &= example.reach_joint_angles(tolerance=0.01) #rad
+    print (success)
+
+  if success:
+    rospy.loginfo("Reaching Named Target Home...")
+    success &= example.reach_named_position("home")
+    print (success)
+
+  if success:
+    rospy.loginfo("Reaching Cartesian Pose...")
+
+    actual_pose = example.get_cartesian_pose()
+    actual_pose.position.z -= 0.2
+    success &= example.reach_cartesian_pose(pose=actual_pose, tolerance=0.01, constraints=None)
+    print (success)
+
+  if example.degrees_of_freedom == 7 and success:
+    rospy.loginfo("Reach Cartesian Pose with constraints...")
+    # Get actual pose
+    actual_pose = example.get_cartesian_pose()
+    actual_pose.position.y -= 0.3
+
+    # Orientation constraint (we want the end effector to stay the same orientation)
+    constraints = moveit_msgs.msg.Constraints()
+    orientation_constraint = moveit_msgs.msg.OrientationConstraint()
+    orientation_constraint.orientation = actual_pose.orientation
+    constraints.orientation_constraints.append(orientation_constraint)
+
+    # Send the goal
+    success &= example.reach_cartesian_pose(pose=actual_pose, tolerance=0.01, constraints=constraints)
+    """

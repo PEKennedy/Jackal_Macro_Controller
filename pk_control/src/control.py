@@ -55,7 +55,10 @@ import copy
 class ExampleMoveItTrajectories(object):
     escaped = False
     gripper_closed = False
-    is_controller_present = False
+    is_controller_present = True#False
+    control_scheme = "Reference" # Reference or Primitives
+    ref_mode = 0
+    last_time = 0
     """ExampleMoveItTrajectories"""
 
     def __init__(self):
@@ -88,15 +91,20 @@ class ExampleMoveItTrajectories(object):
                 gripper_group_name = "gripper"
                 self.gripper_group = moveit_commander.MoveGroupCommander(gripper_group_name, ns=rospy.get_namespace())
 
-            #self.is_controller_present = rospy.has_param("joy") #you can't check if a topic exists really
-            if self.is_controller_present:
-                rospy.Subscriber("joy", Joy, self.handle_controller)
+            #self.is_controller_present = rospy.has_param("") #you can't check if a topic exists really
+            """if self.is_controller_present:
+                if self.control_scheme == "Primitives":
+                    rospy.loginfo("Using Primitives control scheme")
+                    rospy.Subscriber("joy", Joy, self.handle_controller_primitives)
+                else:
+                    rospy.loginfo("Using Reference control scheme")
+                    rospy.Subscriber("joy", Joy, self.handle_controller_reference)
                 rospy.loginfo("Using Controller")
             else:
                 rospy.loginfo("Using Keyboard")
                 # see https://answers.ros.org/question/295940/subscribe-to-actions-on-keyboard-press-key/
                 # which links to https://github.com/ros-teleop/teleop_twist_keyboard/blob/master/teleop_twist_keyboard.py
-                # for how to get keyboard started
+                # for how to get keyboard started"""
 
             rospy.loginfo("Initializing node in namespace " + rospy.get_namespace())
         except Exception as e:
@@ -222,7 +230,7 @@ class ExampleMoveItTrajectories(object):
         )  # jump_threshold
         return plan, fraction
 
-            # button mapping
+            # Xbox button mapping
             # 0==A, 1==B, 2==X, 3==Y
             # 4==LB  5==RB
             # stickBtnL== 9, STBR == 10
@@ -234,9 +242,16 @@ class ExampleMoveItTrajectories(object):
             # R stick X,Y ==3,4 (Y inverted)
             # LT==2 , RT==5
 
-    def handle_controller(self, data):
+            #PS axes are same, some button diffs
+            # 2==Triangle, 3==square
+            # stick btns are 11 (L) and 12 (R)
+            # 8 9 10 =>share, options, ps btn
+            # 6,7 are triggers all the way down
+
+    def handle_controller_primitives(self, data):
         # pprint(vars(data))
         # rospy.loginfo(data)
+        rospy.loginfo(data)
         btnA = data.buttons[0]
         btnB = data.buttons[1]
         ax0 = data.axes[0]
@@ -246,76 +261,138 @@ class ExampleMoveItTrajectories(object):
             self.escaped = True
 
         if btnB == 1:
-            if self.gripper_closed:
-                # self.example_send_gripper_command(1.0)
-                example.reach_gripper_position(1.0)
-                self.gripper_closed = False
-                rospy.loginfo("open")
-            else:
-                # self.example_send_gripper_command(0.0)
-                example.reach_gripper_position(0)
-                self.gripper_closed = True
-                rospy.loginfo("close")
+            self.toggle_gripper()
         # rospy.loginfo("btnA is: " + str(btnA) + " ax0 is" + str(ax0))
 
-
-def main():
-    example = ExampleMoveItTrajectories()
-
-    # For testing purposes
-    success = example.is_init_success
-    rospy.loginfo(success)
-    try:
-        rospy.delete_param("/kortex_examples_test_results/moveit_general_python")
-    except:
-        pass
-
-    if success:
-        rospy.loginfo("Reaching Named Target Home...")
-        success &= example.reach_named_position("home")
-        print(success)
-
-    if example.is_gripper_present and success:
-
-        """Our gripper test"""
-        if example.is_controller_present:
-            rospy.loginfo("Control gripper with controller")
-            self.escaped = False
-
-            i = 0
-            while not self.escaped:
-                # rospy.loginfo("iter %i", i)
-                # rospy.loginfo(self.escaped)
-                rospy.sleep(0.5)
-                i += 1
+    def toggle_gripper(self):
+        rospy.loginfo("CALLED TOGGLE GRIPPER")
+        if self.gripper_closed:
+            # self.example_send_gripper_command(1.0)
+            self.reach_gripper_position(1.0)
+            self.gripper_closed = False
+            rospy.loginfo("open")
         else:
-            rospy.loginfo("demo gripper")
+            # self.example_send_gripper_command(0.0)
+            self.reach_gripper_position(0)
+            self.gripper_closed = True
+            rospy.loginfo("close")
 
-            #pose_to = example.get_cartesian_pose()
-            #pose_to.position.z += 0.2
-            #success &= example.reach_cartesian_pose(pose=pose_to, tolerance=0.01, constraints=None)
-            #print(success)
+    # cycle modes
+    def change_mode(self):
+        if self.control_scheme == "Reference":
+            self.ref_mode = (self.ref_mode + 1) % 3
 
-            rospy.loginfo("do waypoint example")
-            plan, x = example.follow_path_ex()
-            example.arm_group.execute(plan, wait=True)
+    #Let Z be in and out, X side to side, Y be up and down
+    def handle_controller_reference(self, data):
+        cur_time = time.time()
+        dt = cur_time - self.last_time
+        #rospy.loginfo("Called handle controller")
+        #rospy.loginfo(data)
+        ax0 = data.axes[0]
+        ax1 = data.axes[1]
+        btnA = data.buttons[0]
+        btnB = data.buttons[1]
 
-            rospy.loginfo("Opening the gripper...")
-            success &= example.reach_gripper_position(0)
+       # rospy.loginfo("##### ###### #####")
+       # rospy.loginfo(btnB)
+        # X-Z movement
+        if self.ref_mode == 0:
+            pose_to = self.get_cartesian_pose()
+            pose_to.position.z += -2*ax1*dt
+            pose_to.position.x += 2*ax0*dt
+            self.reach_cartesian_pose(pose=pose_to, tolerance=0.01, constraints=None)
+
+        # X-Y movement
+        #elif self.ref_mode == 1:
+
+        # Gripper Twist and final joint's angle
+        #else:
+
+
+        if btnA == 1:
+            rospy.loginfo("Escaped")
+            self.escaped = True
+
+        if btnB == 1:
+            rospy.loginfo("%%%%%%%%%%%%%%%%%%%%%%")
+            self.toggle_gripper()
+        self.last_time = cur_time
+
+    def main(self):
+        example = self #ExampleMoveItTrajectories()
+
+        # For testing purposes
+        success = example.is_init_success
+        rospy.loginfo(success)
+        try:
+            rospy.delete_param("/kortex_examples_test_results/moveit_general_python")
+        except:
+            pass
+
+        if example.is_controller_present:
+            if example.control_scheme == "Primitives":
+                rospy.loginfo("Using Primitives control scheme")
+                # queue_size=1 means no input buffering, only latest command
+                # this means inputs can be eaten, but we aren't queueing ancient ones either
+                rospy.Subscriber("/joy", Joy, example.handle_controller_primitives, queue_size=3)
+            else:
+                rospy.loginfo("Using Reference control scheme")
+                rospy.Subscriber("/joy", Joy, self.handle_controller_reference, queue_size=3)
+            self.last_time = time.time()
+            #rospy.loginfo("Using Controller")
+        else:
+            rospy.loginfo("Using Keyboard")
+
+        if success:
+            rospy.loginfo("Reaching Named Target Home...")
+            success &= example.reach_named_position("home")
             print(success)
 
-            rospy.loginfo("Closing the gripper 50%...")
-            success &= example.reach_gripper_position(0.5)
-            print(success)
+        if example.is_gripper_present and success:
 
-    # For testing purposes
-    rospy.set_param("/kortex_examples_test_results/moveit_general_python", success)
+            """Our gripper test"""
+            if example.is_controller_present:
+                rospy.loginfo("Control gripper with controller")
+                example.escaped = False
 
-    if not success:
-        rospy.logerr("The example encountered an error.")
+                i = 0
+                while not example.escaped:
+                    rospy.loginfo("iter %i", i)
+                    # rospy.loginfo(self.escaped)
+                    rospy.sleep(0.1)
+                    i += 1
+            else:
+                rospy.loginfo("demo gripper")
+
+                #pose_to = example.get_cartesian_pose()
+                #pose_to.position.z += 0.2
+                #success &= example.reach_cartesian_pose(pose=pose_to, tolerance=0.01, constraints=None)
+                #print(success)
+
+                rospy.loginfo("do waypoint example")
+                plan, x = example.follow_path_ex()
+                example.arm_group.execute(plan, wait=True)
+
+                rospy.loginfo("Opening the gripper...")
+                success &= example.reach_gripper_position(0)
+                print(success)
+
+                rospy.loginfo("Closing the gripper 50%...")
+                success &= example.reach_gripper_position(0.5)
+                print(success)
+
+        # For testing purposes
+        rospy.set_param("/kortex_examples_test_results/moveit_general_python", success)
+
+        if not success:
+            rospy.logerr("The example encountered an error.")
+        else:
+            rospy.loginfo("Finished session")
 
 if __name__ == '__main__':
-    main()
+    #main()
+    ex = ExampleMoveItTrajectories()
+    ex.main()
 
 
 

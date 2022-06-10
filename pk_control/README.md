@@ -6,5 +6,9 @@ Use with 'roslaunch pk_control control.launch' after building the package with c
 - 'roslaunch kortex_gazebo spawn_kortex_robot.launch arm:=gen3_lite'
 first though
 
+## Control_old
+Example from github which uses an old version of ros_kortex to move the arm.
+Uses deprecated function, but does work with both gazebo and the real arm.
+
 ## arm.rviz
 Rviz preset for the kinova arm

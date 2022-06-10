@@ -55,7 +55,7 @@ import copy
 class ExampleMoveItTrajectories(object):
     escaped = False
     gripper_closed = False
-    is_controller_present = True#False
+    is_controller_present = False
     control_scheme = "Reference" # Reference or Primitives
     ref_mode = 0
     last_time = 0
@@ -341,7 +341,8 @@ class ExampleMoveItTrajectories(object):
             self.last_time = time.time()
             #rospy.loginfo("Using Controller")
         else:
-            rospy.loginfo("Using Keyboard")
+            #rospy.loginfo("Using Keyboard")
+            rospy.loginfo("No controller")
 
         if success:
             rospy.loginfo("Reaching Named Target Home...")

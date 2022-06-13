@@ -51,6 +51,7 @@ from std_srvs.srv import Empty
 
 from sensor_msgs.msg import Joy
 import copy
+from functools import partial #used to pass arguments in a callback
 
 class ExampleMoveItTrajectories(object):
     escaped = False
@@ -248,6 +249,53 @@ class ExampleMoveItTrajectories(object):
             # 8 9 10 =>share, options, ps btn
             # 6,7 are triggers all the way down
 
+    button_ups = [0,0,0,0]
+    lastButtonDown = [False,False,False,False]
+    buttonDown = [False,False,False,False]
+    onButtonUp = [False,False,False,False]
+    def double_pressed(self, btnIndex, event):
+        if self.button_ups[btnIndex] > 1:
+            rospy.loginfo("Double Pressed")
+            rospy.loginfo(btnIndex)
+            rospy.loginfo("##############")
+        else:
+            rospy.loginfo("Single Pressed")
+            rospy.loginfo(btnIndex)
+            rospy.loginfo("##############")
+        self.button_ups[btnIndex] = 0
+
+
+    #export ROS_MASTER_URI=http://localhost:11311, unset ROS_IP for each terminal
+    #launch each of these in their own terminal
+    #roscore
+    #roslaunch kortex_gazebo spawn_kortex_robot.launch arm:=gen3_lite
+    #rosrun joy joy_node
+    #rosrun pk_control control.launch
+
+    def check_press(self, btnIndex, btnState):
+        self.lastButtonDown[btnIndex] = self.buttonDown[btnIndex]
+        if btnState == 1:
+            self.buttonDown[btnIndex] = True
+        else:
+            self.buttonDown[btnIndex] = False
+
+        self.onButtonUp[btnIndex] = self.lastButtonDown[btnIndex] and not self.buttonDown[btnIndex]
+
+        if self.onButtonUp[btnIndex]:
+            if self.button_ups[btnIndex] == 0:
+                pressedCallback = partial(double_pressed,btnIndex) #make a callback "partial" func which has btnIndex filled out
+                rospy.Timer(rospy.Duration(0.2), pressedCallback, oneShot=True)
+            self.button_ups[btnIndex] += 1
+
+
+
+
+        #if button up
+            #timeout for 200 milis
+            #if timed out >> single press
+            #elsif button up again >> clear timeout, double pressed
+
+
     def handle_controller_primitives(self, data):
         # pprint(vars(data))
         # rospy.loginfo(data)
@@ -255,6 +303,9 @@ class ExampleMoveItTrajectories(object):
         btnA = data.buttons[0]
         btnB = data.buttons[1]
         ax0 = data.axes[0]
+
+        check_presses(0, btnA)
+        check_presses(1, btnB)
 
         if btnA == 1:
             rospy.loginfo("Escaped")

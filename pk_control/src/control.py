@@ -56,7 +56,7 @@ from functools import partial #used to pass arguments in a callback
 class ExampleMoveItTrajectories(object):
     escaped = False
     gripper_closed = False
-    is_controller_present = False
+    is_controller_present = True
     control_scheme = "Reference" # Reference or Primitives
     ref_mode = 0
     last_time = 0
@@ -249,6 +249,9 @@ class ExampleMoveItTrajectories(object):
             # 8 9 10 =>share, options, ps btn
             # 6,7 are triggers all the way down
 
+    #Future improvement: instead just track what the last button was and its count rather than an array
+    #this also means you can't get a double press by rocking back btw 2 btns
+    #or just have a mechanism to cancel if we switch btns, but for now this is good enough
     button_ups = [0,0,0,0]
     lastButtonDown = [False,False,False,False]
     buttonDown = [False,False,False,False]
@@ -262,6 +265,9 @@ class ExampleMoveItTrajectories(object):
             rospy.loginfo("Single Pressed")
             rospy.loginfo(btnIndex)
             rospy.loginfo("##############")
+            #single press B for a gripper toggle
+            if btnIndex == 1:
+                self.toggle_gripper()
         self.button_ups[btnIndex] = 0
 
 
@@ -269,10 +275,11 @@ class ExampleMoveItTrajectories(object):
     #launch each of these in their own terminal
     #roscore
     #roslaunch kortex_gazebo spawn_kortex_robot.launch arm:=gen3_lite
-    #rosrun joy joy_node
-    #rosrun pk_control control.launch
+    #rosparam set joy_node/dev "/dev/input/jsX(2), rosrun joy joy_node
+    #roslaunch pk_control control.launch
 
     def check_press(self, btnIndex, btnState):
+        #rospy.loginfo("Do Check Press")
         self.lastButtonDown[btnIndex] = self.buttonDown[btnIndex]
         if btnState == 1:
             self.buttonDown[btnIndex] = True
@@ -283,10 +290,10 @@ class ExampleMoveItTrajectories(object):
 
         if self.onButtonUp[btnIndex]:
             if self.button_ups[btnIndex] == 0:
-                pressedCallback = partial(double_pressed,btnIndex) #make a callback "partial" func which has btnIndex filled out
-                rospy.Timer(rospy.Duration(0.2), pressedCallback, oneShot=True)
+                pressedCallback = partial(self.double_pressed,btnIndex) #make a callback "partial" func which has btnIndex filled out
+                rospy.Timer(rospy.Duration(0.2), pressedCallback, oneshot=True)
             self.button_ups[btnIndex] += 1
-
+            rospy.loginfo(self.button_ups[btnIndex])
 
 
 
@@ -299,20 +306,22 @@ class ExampleMoveItTrajectories(object):
     def handle_controller_primitives(self, data):
         # pprint(vars(data))
         # rospy.loginfo(data)
-        rospy.loginfo(data)
+        #rospy.loginfo("Hello there")
+        #rospy.loginfo(data)
         btnA = data.buttons[0]
         btnB = data.buttons[1]
+        btnEscape = data.buttons[8] #share on ps, xbox btn on xbox
         ax0 = data.axes[0]
 
-        check_presses(0, btnA)
-        check_presses(1, btnB)
+        self.check_press(0, btnA)
+        self.check_press(1, btnB)
 
-        if btnA == 1:
+        if btnEscape == 1:
             rospy.loginfo("Escaped")
             self.escaped = True
 
-        if btnB == 1:
-            self.toggle_gripper()
+        #if btnB == 1:
+        #    self.toggle_gripper()
         # rospy.loginfo("btnA is: " + str(btnA) + " ax0 is" + str(ax0))
 
     def toggle_gripper(self):
@@ -381,15 +390,15 @@ class ExampleMoveItTrajectories(object):
             pass
 
         if example.is_controller_present:
-            if example.control_scheme == "Primitives":
+            #if example.control_scheme == "Primitives":
                 rospy.loginfo("Using Primitives control scheme")
                 # queue_size=1 means no input buffering, only latest command
                 # this means inputs can be eaten, but we aren't queueing ancient ones either
                 rospy.Subscriber("/joy", Joy, example.handle_controller_primitives, queue_size=3)
-            else:
-                rospy.loginfo("Using Reference control scheme")
-                rospy.Subscriber("/joy", Joy, self.handle_controller_reference, queue_size=3)
-            self.last_time = time.time()
+            #else:
+            #    rospy.loginfo("Using Reference control scheme")
+            #    rospy.Subscriber("/joy", Joy, self.handle_controller_reference, queue_size=3)
+            #self.last_time = time.time()
             #rospy.loginfo("Using Controller")
         else:
             #rospy.loginfo("Using Keyboard")
@@ -409,9 +418,9 @@ class ExampleMoveItTrajectories(object):
 
                 i = 0
                 while not example.escaped:
-                    rospy.loginfo("iter %i", i)
+                    #rospy.loginfo("iter %i", i)
                     # rospy.loginfo(self.escaped)
-                    rospy.sleep(0.1)
+                    rospy.sleep(0.01)
                     i += 1
             else:
                 rospy.loginfo("demo gripper")

@@ -52,11 +52,15 @@ from std_srvs.srv import Empty
 from sensor_msgs.msg import Joy
 import copy
 from functools import partial #used to pass arguments in a callback
+#import json
+#import os
+import tf
+import geometry_msgs
 
 class ExampleMoveItTrajectories(object):
     escaped = False
     gripper_closed = False
-    is_controller_present = True
+    is_controller_present = False
     control_scheme = "Reference" # Reference or Primitives
     ref_mode = 0
     last_time = 0
@@ -68,6 +72,8 @@ class ExampleMoveItTrajectories(object):
         super(ExampleMoveItTrajectories, self).__init__()
         moveit_commander.roscpp_initialize(sys.argv)
         rospy.init_node('example_move_it_trajectories')
+
+        #self.path2()
 
         try:
             self.is_gripper_present = rospy.get_param(rospy.get_namespace() + "is_gripper_present", False)
@@ -230,6 +236,37 @@ class ExampleMoveItTrajectories(object):
             waypoints, 0.01, 0.0  # waypoints to follow  # eef_step
         )  # jump_threshold
         return plan, fraction
+
+    def preplanned_ex(self):
+        rospy.loginfo(self.arm_group.get_current_pose())
+        reachPose = rospy.get_param("/positions/poses/pose")[0]["reachPose"]
+        tPose = reachPose["targetPose"]
+        orientation = tf.transformations.quaternion_from_euler(tPose["thetaX"],tPose["thetaY"],tPose["thetaZ"])
+        #pos = {"translation": (tPose["x"], tPose["y"], tPose["z"]), "rotation": orientation}
+        pos = geometry_msgs.msg.Pose()
+        pos.orientation.x = orientation[0] #z and y are reversed?
+        pos.orientation.y = orientation[1]
+        pos.orientation.z = orientation[2]
+        pos.orientation.w = orientation[3]
+        pos.position.x = tPose["z"]
+        pos.position.y = tPose["y"]
+        pos.position.z = tPose["x"]
+        #rospy.loginfo(type(pos))
+        # Go to Pose Retracted_cart
+        rospy.loginfo("xxxxxxxx Target Pose xxxxxxxx")
+        rospy.loginfo(pos)
+        self.reach_cartesian_pose(pose=pos, tolerance=0.01, constraints=None)# pos["constraint"])
+
+        pass
+
+    """def path2(self):
+        rospy.loginfo("^^^^^^^^^^^^^^^^^^^^^")
+        rospy.loginfo(os.listdir())
+        rospy.loginfo("^^^^^^^^^^^^^^^^^^^^^")
+        with open('./sequences/Grab.json','r') as f:
+            pathDat = json.load(f)
+        rospy.loginfo(pathDat)
+        pass"""
 
             # Xbox button mapping
             # 0==A, 1==B, 2==X, 3==Y
@@ -425,12 +462,14 @@ class ExampleMoveItTrajectories(object):
             else:
                 rospy.loginfo("demo gripper")
 
+                self.preplanned_ex()
+
                 #pose_to = example.get_cartesian_pose()
                 #pose_to.position.z += 0.2
                 #success &= example.reach_cartesian_pose(pose=pose_to, tolerance=0.01, constraints=None)
                 #print(success)
 
-                rospy.loginfo("do waypoint example")
+                """rospy.loginfo("do waypoint example")
                 plan, x = example.follow_path_ex()
                 example.arm_group.execute(plan, wait=True)
 
@@ -440,7 +479,7 @@ class ExampleMoveItTrajectories(object):
 
                 rospy.loginfo("Closing the gripper 50%...")
                 success &= example.reach_gripper_position(0.5)
-                print(success)
+                print(success)"""
 
         # For testing purposes
         rospy.set_param("/kortex_examples_test_results/moveit_general_python", success)

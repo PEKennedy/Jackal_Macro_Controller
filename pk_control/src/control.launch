@@ -3,16 +3,32 @@
     <!-- Robot namespace -->
     <arg name="robot_name" default="my_gen3_lite"/>
     <arg name="start_delay_seconds" default="0"/>
+    <arg name="use_joy" default="True"/>
+    <arg name="joy_index" default="2"/>
 
+
+    <!-- positions -->
     <rosparam file="$(find pk_control)/src/positions/full_forward.json" />
     <rosparam file="$(find pk_control)/src/positions/retracted_cart.json" />
-    <rosparam file="$(find pk_control)/src/sequences/grab_cart.json" />
-    <rosparam>
-        joy_node/dev: "/dev/input/js2"
-    </rosparam>
+
+    <!-- sequences -->
+    <!--<rosparam file="$(find pk_control)/src/sequences/put_back_cart.json" />
+    <rosparam file="$(find pk_control)/src/sequences/grab_cart.json" />-->
+    <rosparam file="$(find pk_control)/src/sequences/combined_seqs.json" />
+
+
+    <group if="$(arg use_joy)">
+        <!--<rosparam>
+            $(param joy_fd)
+            use_joy: "True"
+        </rosparam>-->
+        <param name="joy_node/dev" value="$(eval '/dev/input/js' + str(joy_index))"/>
+        <!--<node name="joy" pkg="joy" type="joy_node" respawn="true" />-->
+    </group>
+
 
     <!-- Launch the example in that namespace -->
-    <node name="pk_arm_controller" pkg="pk_control" type="control.py" output="screen"
+    <node name="pk_arm_controller" pkg="pk_control" type="control_kortex.py" output="screen"
     launch-prefix="bash -c 'sleep $(arg start_delay_seconds); $0 $@' " ns="$(arg robot_name)">
 
         <param name="robot_name" value="$(arg robot_name)"/>
@@ -22,4 +38,4 @@
 
 <!--            // "thetaX":92.8780517578125,
             // "thetaY":-3.9708383083343506,
-            // "thetaZ":92.5357894897461 -->
+            // "thetaZ":92.5357894897461, 30,0,-90 -->

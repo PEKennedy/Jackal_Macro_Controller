@@ -8,7 +8,8 @@ from kortex_driver.msg import *
 
 # import controller for example like https://andrewdai.co/xbox-controller-ros.html#rosjoy
 from sensor_msgs.msg import Joy
-
+import copy
+from functools import partial #used to pass arguments in a callback
 
 # debug
 # from pprint import pprint
@@ -239,19 +240,201 @@ class Control:
             time.sleep(0.5)
             return True
 
-        # button mapping
-        # 0==A, 1==B, 2==X, 3==Y
-        # 4==LB  5==RB
-        # stickBtnL== 9, STBR == 10
-        # Start Btn ==7 , select==6, Xbox==8
+    def go_to_gripper_pose(self, command):
+        req = SendGripperCommandRequest()
+        finger = Finger()
 
-        # axes:
-        # dpad X,Y == 6,7 (Y inverted)
-        # L stick X,Y ==0,1 (Y inverted)
-        # R stick X,Y ==3,4 (Y inverted)
-        # LT==2 , RT==5
+        finger1 = command["gripper"]["finger"][0]
+
+        finger.finger_identifier = 1#finger1["fingerIdentifier"] #<< this is wrong for some reason
+        finger.value = min(max(0.01,finger1["value"]),0.99)
+        rospy.loginfo(finger.value)
+
+        req.input.gripper.finger.append(finger)
+        req.input.mode = GripperMode.GRIPPER_POSITION
+        # Call the service
+        try:
+            self.send_gripper_command(req)
+        except rospy.ServiceException:
+            rospy.logerr("Failed to call SendGripperCommand")
+            return False
+        else:
+            time.sleep(9.0)
+            return True
+            #return self.wait_for_action_end_or_abort()
+
+
+    def execute_sequence(self, seq_name):
+        seqIndex = -1
+        i = 0
+        # find the sequence in the sequence list
+        for sequence in rospy.get_param("/sequences/sequence"):
+            #rospy.loginfo(sequence["name"])
+            if sequence["name"] == seq_name:
+                seqIndex = i
+                rospy.loginfo(sequence["name"])
+                break
+            i += 1
+
+        if seqIndex == -1:
+            rospy.loginfo("Could not find the sequence \""+seq_name+"\"")
+            # fail
+            return False
+
+        # now for each task in that sequence, execute the corresponding action
+        tasks = rospy.get_param("/sequences/sequence")[seqIndex]["tasks"]
+        success = True
+        for task in tasks:
+            if "sendGripperCommand" in task["action"]:
+                rospy.loginfo("Execute Gripper action")
+                success &= self.go_to_gripper_pose(task["action"]["sendGripperCommand"])
+                #success &= self.example_send_gripper_command(0.5)#task["action"]["sendGripperCommand"]["gripper"]["finger"][0]["value"])
+            elif "reachPose" in task["action"]:
+                rospy.loginfo("Execute ReachPose action")
+                success &= self.go_to_cart_pose(task["action"]["reachPose"])
+            elif "reachJointAngles" in task["action"]:
+                rospy.loginfo("Execute Joint Angle Action")
+                #success &= go_gripper_pose()
+            else:
+                success = False
+                rospy.loginfo("Invalid Command Type")
+
+        return success
+
+    def go_param_pose(self, index):
+        reachPose = rospy.get_param("/positions/poses/pose")[index]["reachPose"]
+        return go_to_cart_pose(reachPose)
+
+    def go_to_cart_pose(self, reachPose):
+        tPose = reachPose["targetPose"]
+        req = PlayCartesianTrajectoryRequest()
+        req.input.target_pose.x = tPose["x"]
+        req.input.target_pose.y = tPose["y"]
+        req.input.target_pose.z = tPose["z"]
+        req.input.target_pose.theta_x = tPose["thetaX"]
+        req.input.target_pose.theta_y = tPose["thetaY"]
+        req.input.target_pose.theta_z = tPose["thetaZ"]
+
+        # Call the service
+        rospy.loginfo("Sending the robot to the cartesian pose...")
+        try:
+            self.play_cartesian_trajectory(req)
+        except rospy.ServiceException:
+            rospy.logerr("Failed to call PlayCartesianTrajectory")
+            return False
+        else:
+            return self.wait_for_action_end_or_abort()
+
+
+    def preplanned_ex(self):
+        return go_param_pose(0)
+
+    grabbed = True
+    def grab_toggle(self):
+        if self.grabbed:
+            self.execute_sequence("put_back_cart")
+            self.grabbed = False
+        else:
+            self.execute_sequence("grab_cart")
+            self.grabbed = True
+
+
+    """  
+        #constr = reachPose["constraint"]
+        #pose_speed = CartesianSpeed()
+        #pose_speed.translation = constr["speed"]["translation"]
+        #pose_speed.orientation = constr["speed"]["orientation"]
+
+        # The constraint is a one_of in Protobuf. The one_of concept does not exist in ROS
+        # To specify a one_of, create it and put it in the appropriate list of the oneof_type member of the ROS object :
+        #req.input.constraint.oneof_type.speed.append(pose_speed)"""
+
+
+            # Xbox button mapping
+            # 0==A, 1==B, 2==X, 3==Y
+            # 4==LB  5==RB
+            # stickBtnL== 9, STBR == 10
+            # Start Btn ==7 , select==6, Xbox==8
+
+            # axes:
+            # dpad X,Y == 6,7 (Y inverted)
+            # L stick X,Y ==0,1 (Y inverted)
+            # R stick X,Y ==3,4 (Y inverted)
+            # LT==2 , RT==5
+
+            # PS axes are same, some button diffs
+            # 2==Triangle, 3==square
+            # stick btns are 11 (L) and 12 (R)
+            # 8 9 10 =>share, options, ps btn
+            # 6,7 are triggers all the way down
+        # Future improvement: instead just track what the last button was and its count rather than an array
+        # this also means you can't get a double press by rocking back btw 2 btns
+        # or just have a mechanism to cancel if we switch btns, but for now this is good enough
+    button_ups = [0, 0, 0, 0]
+    lastButtonDown = [False, False, False, False]
+    buttonDown = [False, False, False, False]
+    onButtonUp = [False, False, False, False]
+
+    def double_pressed(self, btnIndex, event):
+        if self.button_ups[btnIndex] > 1:
+            rospy.loginfo("Double Pressed")
+            rospy.loginfo(btnIndex)
+            rospy.loginfo("##############")
+        else:
+            rospy.loginfo("Single Pressed")
+            rospy.loginfo(btnIndex)
+            rospy.loginfo("##############")
+            # single press B for a gripper toggle
+            if btnIndex == 1:
+                self.grab_toggle()
+                #self.toggle_gripper()
+            #if btnIndex ==
+        self.button_ups[btnIndex] = 0
+
+    # export ROS_MASTER_URI=http://localhost:11311, unset ROS_IP for each terminal
+    # launch each of these in their own terminal
+    # roscore
+    # roslaunch kortex_gazebo spawn_kortex_robot.launch arm:=gen3_lite
+    # rosparam set joy_node/dev "/dev/input/jsX(2), rosrun joy joy_node
+    # roslaunch pk_control control.launch
+
+    def check_press(self, btnIndex, btnState):
+        # rospy.loginfo("Do Check Press")
+        self.lastButtonDown[btnIndex] = self.buttonDown[btnIndex]
+        if btnState == 1:
+            self.buttonDown[btnIndex] = True
+        else:
+            self.buttonDown[btnIndex] = False
+
+        self.onButtonUp[btnIndex] = self.lastButtonDown[btnIndex] and not self.buttonDown[btnIndex]
+
+        if self.onButtonUp[btnIndex]:
+            if self.button_ups[btnIndex] == 0:
+                pressedCallback = partial(self.double_pressed,
+                                          btnIndex)  # make a callback "partial" func which has btnIndex filled out
+                rospy.Timer(rospy.Duration(0.2), pressedCallback, oneshot=True)
+            self.button_ups[btnIndex] += 1
+            rospy.loginfo(self.button_ups[btnIndex])
 
     def handle_controller(self, data):
+        # pprint(vars(data))
+        # rospy.loginfo(data)
+        #rospy.loginfo("Hello there")
+        #rospy.loginfo(data)
+        btnA = data.buttons[0]
+        btnB = data.buttons[1]
+        btnEscape = data.buttons[8] #share on ps, xbox btn on xbox
+        ax0 = data.axes[0]
+
+        self.check_press(0, btnA)
+        self.check_press(1, btnB)
+
+        if btnEscape == 1:
+            #rospy.loginfo("Escaped")
+            rospy.signal_shutdown("User Exited")
+            #self.escaped = True
+
+    """def handle_controller(self, data):
         # pprint(vars(data))
         # rospy.loginfo(data)
         btnA = data.buttons[0]
@@ -270,7 +453,7 @@ class Control:
             else:
                 self.example_send_gripper_command(0.0)
                 self.gripper_closed = True
-                rospy.loginfo("close")
+                rospy.loginfo("close")"""
 
         # rospy.loginfo("btnA is: " + str(btnA) + " ax0 is" + str(ax0))
 
@@ -295,26 +478,43 @@ class Control:
 
             # *******************************************************************************
             # Move the robot to the Home position with an Action
-            success &= self.example_home_the_robot()
+            #success &= self.example_home_the_robot()
             # *******************************************************************************
 
             # *******************************************************************************
             # Example of gripper command
 
+            # Set the reference frame to "Mixed"
+            success &= self.example_set_cartesian_reference_frame()
+
             success &= self.example_send_gripper_command(0.0)
             self.gripper_closed = False
 
-            rospy.Subscriber("joy", Joy, self.handle_controller)
+            if rospy.has_param("/joy_node/dev"):#example.is_controller_present:
+                rospy.loginfo("Using Joystick Input")
+                rospy.Subscriber("/joy", Joy, self.handle_controller)
+                rospy.spin()
+            else:
+                rospy.loginfo("Doing Demo Sequence")
 
-            rospy.loginfo("do gripper test")
-            self.escaped = False
+                success &= self.example_send_gripper_command(0.0)
 
-            i = 0
-            while not self.escaped:
+                rospy.loginfo("do Pre-planned example")
+                #self.preplanned_ex()
+                self.execute_sequence("grab_cart")
+
+
+            #rospy.signal_shutdown("reason")
+
+            #rospy.loginfo("do gripper test")
+            #self.escaped = False
+
+            #i = 0
+            #while not self.escaped:
                 # rospy.loginfo("iter %i", i)
                 # rospy.loginfo(self.escaped)
-                rospy.sleep(0.5)
-                i += 1
+            #    rospy.sleep(0.5)
+            #    i += 1
 
             # i = 0
             # while i < 5:
@@ -362,7 +562,6 @@ class Control:
 
         if not success:
             rospy.logerr("The example encountered an error.")
-
 
 if __name__ == "__main__":
     ex = Control()

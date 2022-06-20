@@ -1,5 +1,8 @@
-# pk_control
+# pk_control Package
 catkin package to control the kinova arm, based on a python example from ROS_kortex
+
+
+## Running In Simulation
 
 To use, run this in 4 separate terminals:
 
@@ -16,18 +19,46 @@ Launch the Simulation
     
     roslaunch kortex_gazebo spawn_kortex_robot.launch arm:=gen3_lite
 
-Start the Joystick    
-
-    rosparam set joy_node/dev "/dev/input/js2
-    rosrun joy joy_node
 
 Launch this control program
 
     roslaunch pk_control control.launch
 
+optional parameters are:
+- robot_name (default := my_gen3_lite)
+- start_delay_seconds (default :=0)
+- use_joy (default :=True)
+- joy_index (default :=2)
+
+Start the Joystick    
+
+    rosrun joy joy_node
+
 A future improvement would be to make the simulation + joystick just be
 parameters of pk_control control.launch,
 reducing this to just roscore and pk_control.
+Some work has been done on this
+
+## Run on Jackal (real robot)
+
+To use this on jackal, first move this project onto jackal
+
+    scp -r ~/catkin_ws/src/UNB_HCI administrator@CPR-J100-0574:~/catkin_ws/src
+
+Then build the package on Jackal (not any more, only the first time)
+
+    catkin_make
+
+Launch the kinova arm in one terminal ssh'd into Jackal
+    
+    sudo ifup br0:1
+    roslaunch jackal_kinova_bringup jackal_gen3_lite_bringup.launch
+
+Then in a different ssh'd terminal, launch the control node once the first terminal says "The Kortex driver has been initialized correctly"
+
+    roslaunch pk_control control.launch robot_name:=kinova_arm use_joy:=False joy_index:=0
+
+Note the different robot name to refer to the real arm as opposed to the simulated arm
 
 ## control_moveit.py
 Built from the moveit example, works with gazebo

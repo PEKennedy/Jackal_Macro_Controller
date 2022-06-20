@@ -41,41 +41,60 @@ class Control:
                                                      self.cb_action_topic)
             self.last_action_notif_type = None
 
+            rospy.loginfo("A")
+
             # Init the services
             clear_faults_full_name = '/' + self.robot_name + '/base/clear_faults'
             rospy.wait_for_service(clear_faults_full_name)
             self.clear_faults = rospy.ServiceProxy(clear_faults_full_name, Base_ClearFaults)
 
+            rospy.loginfo("B")
+
             read_action_full_name = '/' + self.robot_name + '/base/read_action'
             rospy.wait_for_service(read_action_full_name)
             self.read_action = rospy.ServiceProxy(read_action_full_name, ReadAction)
 
+            rospy.loginfo("C")
+
             execute_action_full_name = '/' + self.robot_name + '/base/execute_action'
             rospy.wait_for_service(execute_action_full_name)
             self.execute_action = rospy.ServiceProxy(execute_action_full_name, ExecuteAction)
+
+            rospy.loginfo("D")
 
             set_cartesian_reference_frame_full_name = '/' + self.robot_name + '/control_config/set_cartesian_reference_frame'
             rospy.wait_for_service(set_cartesian_reference_frame_full_name)
             self.set_cartesian_reference_frame = rospy.ServiceProxy(set_cartesian_reference_frame_full_name,
                                                                     SetCartesianReferenceFrame)
 
+            rospy.loginfo("E")
+
             play_cartesian_trajectory_full_name = '/' + self.robot_name + '/base/play_cartesian_trajectory'
             rospy.wait_for_service(play_cartesian_trajectory_full_name)
             self.play_cartesian_trajectory = rospy.ServiceProxy(play_cartesian_trajectory_full_name,
                                                                 PlayCartesianTrajectory)
 
+            rospy.loginfo("F")
+
             play_joint_trajectory_full_name = '/' + self.robot_name + '/base/play_joint_trajectory'
             rospy.wait_for_service(play_joint_trajectory_full_name)
             self.play_joint_trajectory = rospy.ServiceProxy(play_joint_trajectory_full_name, PlayJointTrajectory)
+
+            rospy.loginfo("G")
 
             send_gripper_command_full_name = '/' + self.robot_name + '/base/send_gripper_command'
             rospy.wait_for_service(send_gripper_command_full_name)
             self.send_gripper_command = rospy.ServiceProxy(send_gripper_command_full_name, SendGripperCommand)
 
+            rospy.loginfo("H")
+
             activate_publishing_of_action_notification_full_name = '/' + self.robot_name + '/base/activate_publishing_of_action_topic'
             rospy.wait_for_service(activate_publishing_of_action_notification_full_name)
             self.activate_publishing_of_action_notification = rospy.ServiceProxy(
                 activate_publishing_of_action_notification_full_name, OnNotificationActionTopic)
+
+            rospy.loginfo("I")
+
         except:
             self.is_init_success = False
         else:
@@ -83,6 +102,12 @@ class Control:
 
     def cb_action_topic(self, notif):
         self.last_action_notif_type = notif.action_event
+
+    def wait_for_action_start_n_finish(self):
+        while not rospy.is_shutdown():
+            if(self.last_action_notif_type == ActionEvent.ACTION_START):
+                rospy.loginfo("Received ACTION_START notification")
+                return self.wait_for_action_end_or_abort()
 
     def wait_for_action_end_or_abort(self):
         while not rospy.is_shutdown():
@@ -97,6 +122,7 @@ class Control:
 
     def example_subscribe_to_a_robot_notification(self):
         # Activate the publishing of the ActionNotification
+        #rospy.loginfo("xyz??")
         req = OnNotificationActionTopicRequest()
         rospy.loginfo("Activating the action notifications...")
         try:
@@ -112,6 +138,7 @@ class Control:
 
     def example_clear_faults(self):
         try:
+            rospy.loginfo("Clear Faults....")
             self.clear_faults()
         except rospy.ServiceException:
             rospy.logerr("Failed to call ClearFaults")
@@ -164,7 +191,7 @@ class Control:
         rospy.sleep(0.25)
         return True
 
-    def example_send_cartesian_pose(self):
+    """def example_send_cartesian_pose(self):
         self.last_action_notif_type = None
         # Get the actual cartesian pose to increment it
         # You can create a subscriber to listen to the base_feedback
@@ -195,7 +222,46 @@ class Control:
             rospy.logerr("Failed to call PlayCartesianTrajectory")
             return False
         else:
+            return self.wait_for_action_end_or_abort()"""
+
+    #example which as I understand will work on the real robot, but not in simulation
+    def example_send_cartesian_pose(self):
+        self.last_action_notif_type = None
+        # Get the actual cartesian pose to increment it
+        # You can create a subscriber to listen to the base_feedback
+        # Here we only need the latest message in the topic though
+        feedback = rospy.wait_for_message("/" + self.robot_name + "/base_feedback", BaseCyclic_Feedback)
+
+        # Possible to execute waypointList via execute_action service or use execute_waypoint_trajectory service directly
+        req = ExecuteActionRequest()
+        trajectory = WaypointList()
+
+        trajectory.waypoints.append(
+            self.FillCartesianWaypoint(
+                feedback.base.commanded_tool_pose_x,
+                feedback.base.commanded_tool_pose_y,
+                feedback.base.commanded_tool_pose_z + 0.10,
+                feedback.base.commanded_tool_pose_theta_x,
+                feedback.base.commanded_tool_pose_theta_y,
+                feedback.base.commanded_tool_pose_theta_z,
+                0)
+        )
+
+        trajectory.duration = 0
+        trajectory.use_optimal_blending = False
+
+        req.input.oneof_action_parameters.execute_waypoint_list.append(trajectory)
+
+        # Call the service
+        rospy.loginfo("Sending the robot to the cartesian pose...")
+        try:
+            self.execute_action(req)
+        except rospy.ServiceException:
+            rospy.logerr("Failed to call ExecuteWaypointTrajectory")
+            return False
+        else:
             return self.wait_for_action_end_or_abort()
+
 
     def example_send_joint_angles(self):
         self.last_action_notif_type = None
@@ -240,7 +306,20 @@ class Control:
             time.sleep(0.5)
             return True
 
+    gripper_cur_pos = 0.0
+    def read_gripper_pos(self, data):
+        #interconnect:oneof_tool_feedback:gripper_feedback:motor:position
+        #rospy.loginfo(data.interconnect.oneof_tool_feedback.gripper_feedback[0].motor.position)
+        self.gripper_cur_pos = data.interconnect.oneof_tool_feedback.gripper_feedback[0].motor[0].position/100
+        #rospy.loginfo("Gripper pos is: "+str(self.gripper_cur_pos))
+
     def go_to_gripper_pose(self, command):
+
+        #subscribe to where the current position of the finger is
+        #sub = rospy.Subscriber("/"+self.robot_name+"/gen3_lite_2f_gripper_controller/gripper_cmd/feedback", InterconnectCyclic_Feedback, self.read_gripper_pos)
+        #rostopic echo /my_gen3_lite/base_feedback
+        sub = rospy.Subscriber("/" + self.robot_name + "/base_feedback", BaseCyclic_Feedback, self.read_gripper_pos)
+
         req = SendGripperCommandRequest()
         finger = Finger()
 
@@ -257,9 +336,13 @@ class Control:
             self.send_gripper_command(req)
         except rospy.ServiceException:
             rospy.logerr("Failed to call SendGripperCommand")
+            sub.unregister() #unsubscribe the gripper position since we don't need it anymore
             return False
         else:
-            time.sleep(9.0)
+            #wait until the gripper is within a margin of error of the wanted position
+            while abs(finger.value - self.gripper_cur_pos) > 0.03:
+                time.sleep(0.5)
+            sub.unregister()
             return True
             #return self.wait_for_action_end_or_abort()
 
@@ -323,7 +406,7 @@ class Control:
             rospy.logerr("Failed to call PlayCartesianTrajectory")
             return False
         else:
-            return self.wait_for_action_end_or_abort()
+            return self.wait_for_action_start_n_finish()#self.wait_for_action_end_or_abort()
 
 
     def preplanned_ex(self):
@@ -380,6 +463,8 @@ class Control:
             rospy.loginfo("Double Pressed")
             rospy.loginfo(btnIndex)
             rospy.loginfo("##############")
+            if btnIndex == 1:
+                self.execute_sequence("Poke_cart")
         else:
             rospy.loginfo("Single Pressed")
             rospy.loginfo(btnIndex)
@@ -434,29 +519,6 @@ class Control:
             rospy.signal_shutdown("User Exited")
             #self.escaped = True
 
-    """def handle_controller(self, data):
-        # pprint(vars(data))
-        # rospy.loginfo(data)
-        btnA = data.buttons[0]
-        btnB = data.buttons[1]
-        ax0 = data.axes[0]
-
-        if btnA == 1:
-            rospy.loginfo("Escaped")
-            self.escaped = True
-
-        if btnB == 1:
-            if self.gripper_closed:
-                self.example_send_gripper_command(1.0)
-                self.gripper_closed = False
-                rospy.loginfo("open")
-            else:
-                self.example_send_gripper_command(0.0)
-                self.gripper_closed = True
-                rospy.loginfo("close")"""
-
-        # rospy.loginfo("btnA is: " + str(btnA) + " ax0 is" + str(ax0))
-
     def main(self):
         # For testing purposes
         success = self.is_init_success
@@ -470,7 +532,7 @@ class Control:
             # Make sure to clear the robot's faults else it won't move if it's already in fault
             success &= self.example_clear_faults()
             # *******************************************************************************
-
+            #rospy.loginfo("hello?")
             # *******************************************************************************
             # Activate the action notifications
             success &= self.example_subscribe_to_a_robot_notification()
@@ -487,10 +549,12 @@ class Control:
             # Set the reference frame to "Mixed"
             success &= self.example_set_cartesian_reference_frame()
 
+
+
             success &= self.example_send_gripper_command(0.0)
             self.gripper_closed = False
 
-            if rospy.has_param("/joy_node/dev"):#example.is_controller_present:
+            if rospy.has_param("/use_joy"):#"/joy_node/dev"):#example.is_controller_present:
                 rospy.loginfo("Using Joystick Input")
                 rospy.Subscriber("/joy", Joy, self.handle_controller)
                 rospy.spin()
@@ -502,34 +566,6 @@ class Control:
                 rospy.loginfo("do Pre-planned example")
                 #self.preplanned_ex()
                 self.execute_sequence("grab_cart")
-
-
-            #rospy.signal_shutdown("reason")
-
-            #rospy.loginfo("do gripper test")
-            #self.escaped = False
-
-            #i = 0
-            #while not self.escaped:
-                # rospy.loginfo("iter %i", i)
-                # rospy.loginfo(self.escaped)
-            #    rospy.sleep(0.5)
-            #    i += 1
-
-            # i = 0
-            # while i < 5:
-            #     rospy.loginfo("iter %i", i)
-            #     if self.is_gripper_present:
-            #         success &= self.example_send_gripper_command(0.0)
-            #     else:
-            #         rospy.logwarn("No gripper is present on the arm.")
-            #
-            #     if self.is_gripper_present:
-            #         success &= self.example_send_gripper_command(1.0)
-            #     else:
-            #         rospy.logwarn("No gripper is present on the arm.")
-            #     rospy.sleep(0.5)
-            #     i += 1
 
             # *******************************************************************************
 
@@ -566,3 +602,77 @@ class Control:
 if __name__ == "__main__":
     ex = Control()
     ex.main()
+
+
+    """def handle_controller(self, data):
+        # pprint(vars(data))
+        # rospy.loginfo(data)
+        btnA = data.buttons[0]
+        btnB = data.buttons[1]
+        ax0 = data.axes[0]
+
+        if btnA == 1:
+            rospy.loginfo("Escaped")
+            self.escaped = True
+
+        if btnB == 1:
+            if self.gripper_closed:
+                self.example_send_gripper_command(1.0)
+                self.gripper_closed = False
+                rospy.loginfo("open")
+            else:
+                self.example_send_gripper_command(0.0)
+                self.gripper_closed = True
+                rospy.loginfo("close")"""
+
+        # rospy.loginfo("btnA is: " + str(btnA) + " ax0 is" + str(ax0))
+
+"""
+from rostopic echo /my_gen3_lite/gen3_lite_2f_gripper_controller/gripper_cmd/status
+
+header: 
+  seq: 11502
+  stamp: 
+    secs: 2288
+    nsecs: 400000000
+  frame_id: ''
+status_list: 
+  - 
+    goal_id: 
+      stamp: 
+        secs: 510
+        nsecs: 404000000
+      id: "/my_gen3_lite/my_gen3_lite_driver-65-510.404000000"
+    status: 3
+    text: ''
+
+
+
+from rostopic echo /my_gen3_lite/gen3_lite_2f_gripper_controller/gripper_cmd/feedback
+
+actuators:
+    ...
+interconnect:
+  oneof_tool_feedback: 
+    gripper_feedback: 
+      - 
+        feedback_id: 
+          identifier: 0
+        status_flags: 0
+        fault_bank_a: 0
+        fault_bank_b: 0
+        warning_bank_a: 0
+        warning_bank_b: 0
+        motor: 
+          - 
+            motor_id: 0
+            position: 0.998776376247406
+            velocity: 0.0
+            current_motor: 0.0
+            voltage: 0.0
+            temperature_motor: 0.0
+---
+
+"""
+
+

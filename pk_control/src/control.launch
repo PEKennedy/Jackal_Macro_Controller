@@ -22,6 +22,7 @@
             $(param joy_fd)
             use_joy: "True"
         </rosparam>-->
+        <param name="use_joy" value="True"/>
         <param name="joy_node/dev" value="$(eval '/dev/input/js' + str(joy_index))"/>
         <!--<node name="joy" pkg="joy" type="joy_node" respawn="true" />-->
     </group>

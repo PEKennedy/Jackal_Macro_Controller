@@ -102,20 +102,37 @@ class Control:
 
     def cb_action_topic(self, notif):
         self.last_action_notif_type = notif.action_event
+        rospy.loginfo("Last action was "+str(notif.action_event))
+        if (self.last_action_notif_type == ActionEvent.ACTION_START):
+            rospy.loginfo("Received ACTION_START notification")
+        if (self.last_action_notif_type == ActionEvent.ACTION_END):
+            rospy.loginfo("Received ACTION_END notification")
+        if (self.last_action_notif_type == ActionEvent.ACTION_ABORT):
+            rospy.loginfo("Received ACTION_ABORT notification")
+        if (self.last_action_notif_type == ActionEvent.ACTION_FEEDBACK):
+            rospy.loginfo("Received ACTION_FEEDBACK notification")
+        if (self.last_action_notif_type == ActionEvent.ACTION_PAUSE):
+            rospy.loginfo("Received ACTION_PAUSE notification")
+        if (self.last_action_notif_type == ActionEvent.ACTION_PREPROCESS_ABORT):
+            rospy.loginfo("Received ACTION_PREPROCESS_ABORT notification")
+        if (self.last_action_notif_type == ActionEvent.ACTION_PREPROCESS_END):
+            rospy.loginfo("Received ACTION_PREPROCESS_END notification")
+        if (self.last_action_notif_type == ActionEvent.ACTION_PREPROCESS_START):
+            rospy.loginfo("Received ACTION_PREPROCESS_START notification")
 
     def wait_for_action_start_n_finish(self):
         while not rospy.is_shutdown():
             if(self.last_action_notif_type == ActionEvent.ACTION_START):
-                rospy.loginfo("Received ACTION_START notification")
+                #rospy.loginfo("Received ACTION_START notification")
                 return self.wait_for_action_end_or_abort()
 
     def wait_for_action_end_or_abort(self):
         while not rospy.is_shutdown():
             if (self.last_action_notif_type == ActionEvent.ACTION_END):
-                rospy.loginfo("Received ACTION_END notification")
+                #rospy.loginfo("Received ACTION_END notification")
                 return True
             elif (self.last_action_notif_type == ActionEvent.ACTION_ABORT):
-                rospy.loginfo("Received ACTION_ABORT notification")
+                #rospy.loginfo("Received ACTION_ABORT notification")
                 return False
             else:
                 time.sleep(0.01)
@@ -260,8 +277,23 @@ class Control:
             rospy.logerr("Failed to call ExecuteWaypointTrajectory")
             return False
         else:
-            return self.wait_for_action_end_or_abort()
+            return self.wait_for_action_start_n_finish()#self.wait_for_action_end_or_abort()
 
+    def FillCartesianWaypoint(self, new_x, new_y, new_z, new_theta_x, new_theta_y, new_theta_z, blending_radius):
+        waypoint = Waypoint()
+        cartesianWaypoint = CartesianWaypoint()
+
+        cartesianWaypoint.pose.x = new_x
+        cartesianWaypoint.pose.y = new_y
+        cartesianWaypoint.pose.z = new_z
+        cartesianWaypoint.pose.theta_x = new_theta_x
+        cartesianWaypoint.pose.theta_y = new_theta_y
+        cartesianWaypoint.pose.theta_z = new_theta_z
+        cartesianWaypoint.reference_frame = CartesianReferenceFrame.CARTESIAN_REFERENCE_FRAME_BASE
+        cartesianWaypoint.blending_radius = blending_radius
+        waypoint.oneof_type_of_waypoint.cartesian_waypoint.append(cartesianWaypoint)
+
+        return waypoint
 
     def example_send_joint_angles(self):
         self.last_action_notif_type = None
@@ -316,8 +348,10 @@ class Control:
     def go_to_gripper_pose(self, command):
 
         #subscribe to where the current position of the finger is
+        #lite_2f_gripper_controller feedback wasn't giving anything in simulation
         #sub = rospy.Subscriber("/"+self.robot_name+"/gen3_lite_2f_gripper_controller/gripper_cmd/feedback", InterconnectCyclic_Feedback, self.read_gripper_pos)
-        #rostopic echo /my_gen3_lite/base_feedback
+
+        #but rostopic echo /my_gen3_lite/base_feedback did
         sub = rospy.Subscriber("/" + self.robot_name + "/base_feedback", BaseCyclic_Feedback, self.read_gripper_pos)
 
         req = SendGripperCommandRequest()
@@ -325,7 +359,7 @@ class Control:
 
         finger1 = command["gripper"]["finger"][0]
 
-        finger.finger_identifier = 1#finger1["fingerIdentifier"] #<< this is wrong for some reason
+        finger.finger_identifier = 1#finger1["fingerIdentifier"] #for now, hardcoded
         finger.value = min(max(0.01,finger1["value"]),0.99)
         rospy.loginfo(finger.value)
 
@@ -409,8 +443,8 @@ class Control:
             return self.wait_for_action_start_n_finish()#self.wait_for_action_end_or_abort()
 
 
-    def preplanned_ex(self):
-        return go_param_pose(0)
+    #def preplanned_ex(self):
+    #    return go_param_pose(0)
 
     grabbed = True
     def grab_toggle(self):
@@ -540,7 +574,7 @@ class Control:
 
             # *******************************************************************************
             # Move the robot to the Home position with an Action
-            #success &= self.example_home_the_robot()
+            success &= self.example_home_the_robot()
             # *******************************************************************************
 
             # *******************************************************************************
@@ -561,10 +595,12 @@ class Control:
             else:
                 rospy.loginfo("Doing Demo Sequence")
 
-                success &= self.example_send_gripper_command(0.0)
+                rospy.loginfo("Do Built-in stuff")
+
+                success &= self.example_send_gripper_command(0.5)
+                success &= self.example_send_cartesian_pose()
 
                 rospy.loginfo("do Pre-planned example")
-                #self.preplanned_ex()
                 self.execute_sequence("grab_cart")
 
             # *******************************************************************************

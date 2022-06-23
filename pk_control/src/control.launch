@@ -17,7 +17,7 @@
     <rosparam file="$(find pk_control)/src/sequences/combined_seqs.json" />
 
 
-    <group if="$(arg use_joy)">
+    <group if="$(eval use_joy == 'True')">
         <!--<rosparam>
             $(param joy_fd)
             use_joy: "True"
@@ -28,7 +28,7 @@
     </group>
 
 
-    <!-- Launch the example in that namespace -->
+    <!-- Launch the example in that namespace control_kortex.py-->
     <node name="pk_arm_controller" pkg="pk_control" type="control_kortex.py" output="screen"
     launch-prefix="bash -c 'sleep $(arg start_delay_seconds); $0 $@' " ns="$(arg robot_name)">
 

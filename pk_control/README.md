@@ -4,7 +4,7 @@ catkin package to control the kinova arm, based on a python example from ROS_kor
 
 ## Running In Simulation
 
-To use, run this in 4 separate terminals:
+To use, run this in 4 separate terminals ** not anymore:
 
     export ROS_MASTER_URI=http://localhost:11311
     unset ROS_IP

@@ -49,9 +49,11 @@ def generate_circle(radius=1, num_pts=8):
     tau = 6.283185 # tau= 2*pi ~=6.283185
     angle = tau/num_pts
     for i in range(num_pts):
-        x = math.cos(angle*i)*radius
-        y = math.sin(angle*i)*radius
-        pts.append([x,y])
+        pt_angle = angle*i
+        x = math.cos(pt_angle)*radius
+        y = math.sin(pt_angle)*radius
+        pts.append([x,y, pt_angle])
+    pts.append(pts[0]) #add the starting point to the end for a complete circle
     return pts
 
 #generate a circle around the x (forward) axis in 3d
@@ -60,7 +62,9 @@ def gen_circle_axis(radius=0.5, num_pts=8, origin=[0.3812,0.0644,0.2299]):
     rospy.loginfo(circle)
     res = []
     for pt in circle:
-        res.append([origin[0],origin[1]+pt[0],origin[2]+pt[1]])
+        #if pt[2]
+        res.append([origin[0],origin[1]+pt[0],origin[2]+pt[1], pt[2]*57.2958])
+    res.append([origin[0],origin[1],origin[2],0])
     return res
 
 #return the distance between 2 vector3s (unlike above, they have (x,y,z) (tuples?) rather than [x,y,z]
@@ -197,6 +201,10 @@ class Control:
             # - joint_identifier: 0
             #   value: -0.57
             #   duration: 0"
+
+            joint_velocity_full_name = '/' + self.robot_name + '/base/send_selected_joint_speed_command'
+            rospy.wait_for_service(joint_velocity_full_name)
+            self.joint_velocity_command = rospy.ServiceProxy(joint_velocity_full_name, SendSelectedJointSpeedCommand)#JointSpeed)
 
 
         except:
@@ -344,6 +352,23 @@ class Control:
             return False
         else:
             return self.wait_for_action_end_or_abort()"""
+
+    def control_angle_vel(self):
+        #/ my_gen3_lite / actuator_config / set_control_mode
+
+        x = SendSelectedJointSpeedCommand()#JointSpeed()#
+        x.input = JointSpeed()
+
+        x.joint_identifier = 4
+        x.value = 10
+        x.duration = 00
+        x.input.joint_identifier = 4
+        x.input.value = 10
+        x.input.duration = 00
+
+        rospy.loginfo("Send Angle Velocity")
+
+        self.joint_velocity_command(x)
 
     #example which as I understand will work on the real robot, but not in simulation
     def example_send_cartesian_pose(self):
@@ -647,6 +672,7 @@ class Control:
     #wrist_fixed determines whether the gripper stays at the same angle or whether
     #the angle changes relative to where on the circle the arm is
     #wrist angle chooses the angle to put the gripper at
+    #TODO: it sounds like the Cartesian trajectory action server can do this, but smoothly
     def do_circle(self, radius=0.20, wrist_fixed=False, wrist_angle=90):
         pts = gen_circle_axis(radius,12)
         rospy.loginfo("___________ RES ___________")
@@ -674,7 +700,7 @@ class Control:
                 #"thetaY": -3.9708383083343506,
                 #"thetaZ": 92.5357894897461
                 "thetaX": 90,
-                "thetaY": 45,
+                "thetaY": 0,#180-pt[3],
                 "thetaZ": 90
             }}}})
         rospy.loginfo("***** TASKS *****")
@@ -747,6 +773,8 @@ class Control:
             #rospy.loginfo("Double Pressed")
             #rospy.loginfo(btnIndex)
             #rospy.loginfo("##############")
+            if btnIndex == 0:
+                self.control_angle_vel() #test twisting
             if btnIndex == 1:
                 self.execute_sequence("Poke_cart")
                 grabbed = False

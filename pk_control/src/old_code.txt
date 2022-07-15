@@ -1,0 +1,405 @@
+
+
+            #emergency stop
+            # rostopic pub /my_gen3/in/emergency_stop std_msgs/Empty "{}"
+
+            #clear faults
+            # rostopic pub /my_gen3/in/clear_faults std_msgs/Empty "{}" << already have it
+
+            #cart vel << already have it?
+            # rostopic pub /my_gen3/in/cartesian_velocity kortex_driver/TwistCommand "reference_frame: 0
+            # twist: {linear_x: 0.0, linear_y: 0.0, linear_z: 0.05, angular_x: 0.0, angular_y: 0.0,
+            # angular_z: 0.0}
+            # duration: 0"
+
+            # joint vel << have it?
+            # rostopic pub /my_gen3/in/joint_velocity kortex_driver/Base_JointSpeeds "joint_speeds:
+            # - joint_identifier: 0
+            #   value: -0.57
+            #   duration: 0"
+
+
+    def example_send_joint_angles(self):
+        self.last_action_notif_type = None
+        # Create the list of angles
+        req = PlayJointTrajectoryRequest()
+        # Here the arm is vertical (all zeros)
+        for i in range(self.degrees_of_freedom):
+            temp_angle = JointAngle()
+            temp_angle.joint_identifier = i
+            temp_angle.value = 0.0
+            req.input.joint_angles.joint_angles.append(temp_angle)
+
+        # Send the angles
+        rospy.loginfo("Sending the robot vertical...")
+        try:
+            self.play_joint_trajectory(req)
+        except rospy.ServiceException:
+            rospy.logerr("Failed to call PlayJointTrajectory")
+            return False
+        else:
+            return self.wait_for_action_end_or_abort()
+
+# rotate a vector about an axis theta radians, taken from https://stackoverflow.com/questions/6802577/rotation-of-3d-vector
+# which implements the euler-rodrigues formula
+# this returns a rotation matrix you dot multiply your vector by
+"""
+Return the rotation matrix associated with counterclockwise rotation about
+the given axis by theta radians.
+"""
+"""def rotation_matrix(axis, theta):
+
+    axis = np.asarray(axis)
+    axis = axis / math.sqrt(np.dot(axis, axis))
+    a = math.cos(theta / 2.0)
+    b, c, d = -axis * math.sin(theta / 2.0)
+    aa, bb, cc, dd = a * a, b * b, c * c, d * d
+    bc, ad, ac, ab, bd, cd = b * c, a * d, a * c, a * b, b * d, c * d
+    return np.array([[aa + bb - cc - dd, 2 * (bc + ad), 2 * (bd - ac)],
+                     [2 * (bc - ad), aa + cc - bb - dd, 2 * (cd + ab)],
+                     [2 * (bd + ac), 2 * (cd - ab), aa + dd - bb - cc]])
+
+#returns the rotated vector, vec and axis are both [x,y,z], theta is radians
+def rotate_vector(vec, axis, theta):
+    rot_matrix = rotation_matrix(axis,theta)
+    return np.dot(rot_matrix,vec)"""
+
+
+from rotate wrist:
+
+
+        #joint_feedback = rospy.wait_for_message("/" + self.robot_name + "/base/get_measured_joint_angles", JointAngles)#ActuatorCyclic_Feedback)
+
+        """rospy.loginfo(feedback.actuators[0])#joint_feedback)
+        rospy.loginfo("yyy")
+        req = PlayCartesianTrajectoryRequest()
+        req.input.target_pose.x = feedback.base.commanded_tool_pose_x
+        req.input.target_pose.y = feedback.base.commanded_tool_pose_y
+        req.input.target_pose.z = feedback.base.commanded_tool_pose_z
+        req.input.target_pose.theta_x = feedback.base.commanded_tool_pose_theta_x + angle2
+        req.input.target_pose.theta_y = feedback.base.commanded_tool_pose_theta_y + angle
+        req.input.target_pose.theta_z = feedback.base.commanded_tool_pose_theta_z
+
+        pose_speed = CartesianSpeed()
+        pose_speed.translation = 0.1
+        pose_speed.orientation = 15"""
+
+        # The constraint is a one_of in Protobuf. The one_of concept does not exist in ROS
+        # To specify a one_of, create it and put it in the appropriate list of the oneof_type member of the ROS object :
+        #req.input.constraint.oneof_type.speed.append(pose_speed)
+
+        #r2 = PlaySelectedJointTrajectory()#ConstrainedJointAngle()
+        #r2.input = ConstrainedJointAngle()
+
+        #r2.input.joint_identifier = 6
+        #r2.input.value = 50
+
+        #r2.input.joint_identifier = 6
+        #r2.input.value = 50
+
+        #r2.input.constraint = JointTrajectoryConstraint()
+        #r2.input.constraint.value = 100
+        #r2.input.constraint.type = 0
+
+        #rospy.loginfo(dir(r2))
+
+        try:
+            #self.play_selected_joint_trajectory(r2)
+            #self.play_cartesian_trajectory(req)
+
+
+
+    """        self.last_action_notif_type = None
+        # Create the list of angles
+        req = PlayJointTrajectoryRequest()
+        # Here the arm is vertical (all zeros)
+        for i in range(self.degrees_of_freedom):
+            temp_angle = JointAngle()
+            temp_angle.joint_identifier = i
+            temp_angle.value = 0.0
+            req.input.joint_angles.joint_angles.append(temp_angle)
+
+        # Send the angles
+        rospy.loginfo("Sending the robot vertical...")
+        try:
+            self.play_joint_trajectory(req)
+        except rospy.ServiceException:
+            rospy.logerr("Failed to call PlayJointTrajectory")
+            return False
+        else:
+            return self.wait_for_action_end_or_abort()"""
+
+    """def example_send_cartesian_pose(self):
+        self.last_action_notif_type = None
+        # Get the actual cartesian pose to increment it
+        # You can create a subscriber to listen to the base_feedback
+        # Here we only need the latest message in the topic though
+        feedback = rospy.wait_for_message("/" + self.robot_name + "/base_feedback", BaseCyclic_Feedback)
+
+        req = PlayCartesianTrajectoryRequest()
+        req.input.target_pose.x = feedback.base.commanded_tool_pose_x
+        req.input.target_pose.y = feedback.base.commanded_tool_pose_y
+        req.input.target_pose.z = feedback.base.commanded_tool_pose_z + 0.10
+        req.input.target_pose.theta_x = feedback.base.commanded_tool_pose_theta_x
+        req.input.target_pose.theta_y = feedback.base.commanded_tool_pose_theta_y
+        req.input.target_pose.theta_z = feedback.base.commanded_tool_pose_theta_z
+
+        pose_speed = CartesianSpeed()
+        pose_speed.translation = 0.1
+        pose_speed.orientation = 15
+
+        # The constraint is a one_of in Protobuf. The one_of concept does not exist in ROS
+        # To specify a one_of, create it and put it in the appropriate list of the oneof_type member of the ROS object :
+        req.input.constraint.oneof_type.speed.append(pose_speed)
+
+        # Call the service
+        rospy.loginfo("Sending the robot to the cartesian pose...")
+        try:
+            self.play_cartesian_trajectory(req)
+        except rospy.ServiceException:
+            rospy.logerr("Failed to call PlayCartesianTrajectory")
+            return False
+        else:
+            return self.wait_for_action_end_or_abort()"""
+
+
+    def control_angle_vel(self):
+        #/ my_gen3_lite / actuator_config / set_control_mode
+
+        """auto control_mode_message = k_api::ActuatorConfig::ControlModeInformation();
+        control_mode_message.set_control_mode(k_api::ActuatorConfig::ControlMode::VELOCITY);
+        actuator_config->SetControlMode(control_mode_message, 1);"""
+
+        #control_mode = SetControlMode()
+        #control_mode.input = ActuatorConfig_ControlModeInformation()
+        #control_mode.input = ActuatorConfig_ControlMode.VELOCITY#.control_mode = ActuatorConfig_ControlMode.VELOCITY
+
+        #rospy.loginfo(ActuatorConfig_ControlModeInformation())
+        #rospy.loginfo(ActuatorConfig_ControlMode.VELOCITY)
+        #rospy.loginfo(control_mode)
+        #input = ActuatorConfig_ControlModeInformation()
+        #input.control_mode = ActuatorConfig_ControlMode.VELOCITY
+        #input = (ActuatorConfig_ControlMode.VELOCITY, 4)
+        #self.set_control_mode(input)
+
+
+        #x = SendSelectedJointSpeedCommand()#JointSpeed()#
+        #x.input = JointSpeed()
+
+        #x.joint_identifier = 4
+        #x.value = 10
+        #x.duration = 00
+        #x.input.joint_identifier = 4
+        #x.input.value = 10
+        #x.input.duration = 00
+
+        #input = JointSpeed()
+        #input.joint_identifier = 4
+        #input.value = 10
+        #x = kortex_driver.srv.SendSelectedJointSpeedCommandRequest()
+        #rospy.loginfo()
+        #joint_speed = kortex_driver.msg.JointSpeed()
+        #joint_speed.joint_identifier = 4#jidx
+        #joint_speed.value = 0.05
+
+        #x.input = joint_speed
+        #rospy.loginfo(dir(kortex_driver.srv.SendSelectedJointSpeedCommand()))
+        rospy.loginfo("Send Angle Velocity")
+
+        all_devices = self.read_all_devices()
+        rospy.loginfo(all_devices)
+
+        #self.joint_velocity_command.call(x)#joint_speed)
+
+        req = SendSelectedJointSpeedCommandRequest()
+        js = JointSpeed()
+        js.joint_identifier = 0
+        js.value = 0.5
+        #req.input.joint_identifier = 4
+        #req.input.value = 0.5
+        req.input = js
+
+        try:
+            self.joint_velocity_command(req)
+        except rospy.ServiceException:
+            rospy.logerr("XXXXXXXXXXXXX")
+            return False
+        else:
+            return self.wait_for_action_start_n_finish()
+
+
+        """    prevReach = { #default previous position
+        "targetPose":{
+            "x": 0.38117900490760803,
+            "y": 0.0644112303853035,
+            "z": 0.22991076111793518
+        }
+        }"""
+
+    #TODO: Temporary function to help test relative movement
+    #in the future, up and down movement itself needs to be relative/additive to other
+    #motions (so we can swing up/down)
+    #or should it?
+    #I think retracted_cart should be the origin
+    """up = False
+    def up_down_toggle(self):
+        if self.up:
+            self.up = False
+            rospy.loginfo("Go Down")
+            return self.go_param_pose(0)
+        else:
+            self.up = True
+            rospy.loginfo("Go Up")
+            return self.go_param_pose(1)"""
+
+    """
+        #constr = reachPose["constraint"]
+        #pose_speed = CartesianSpeed()
+        #pose_speed.translation = constr["speed"]["translation"]
+        #pose_speed.orientation = constr["speed"]["orientation"]
+
+        # The constraint is a one_of in Protobuf. The one_of concept does not exist in ROS
+        # To specify a one_of, create it and put it in the appropriate list of the oneof_type member of the ROS object :
+        #req.input.constraint.oneof_type.speed.append(pose_speed)"""
+
+
+From main
+
+
+                #rospy.loginfo("Do Built-in stuff")
+
+                #success &= self.example_send_gripper_command(0.5)
+                #success &= self.example_send_cartesian_pose()
+
+                #rospy.loginfo("do Pre-planned example")
+                #self.execute_sequence("grab_cart")
+                #self.up_down_toggle()
+                #rospy.sleep(0.25)
+                #self.execute_sequence("grab_cart")
+                #self.up_down_toggle()
+                ...
+
+
+                #self.go_to_cart_pose_relative()
+            # *******************************************************************************
+
+            # *******************************************************************************
+            # Set the reference frame to "Mixed"
+            # success &= self.example_set_cartesian_reference_frame()
+
+            # Example of cartesian pose
+            # Let's make it move in Z
+            # success &= self.example_send_cartesian_pose()
+            # *******************************************************************************
+
+            # *******************************************************************************
+            # Example of angular position
+            # Let's send the arm to vertical position
+            # success &= self.example_send_joint_angles()
+            # *******************************************************************************
+
+            # *******************************************************************************
+            # Example of gripper command
+            # Let's close the gripper at 50%
+            # if self.is_gripper_present:
+            #    success &= self.example_send_gripper_command(0.5)
+            # else:
+            #    rospy.logwarn("No gripper is present on the arm.")
+            # *******************************************************************************
+
+        # For testing purposes
+        # rospy.set_param("/kortex_examples_test_results/full_arm_movement_python", success)
+
+    rostopic output
+
+from cb_ ... (action notifications):
+        #rospy.loginfo("Last action was "+str(notif.action_event))
+        #if (self.last_action_notif_type == ActionEvent.ACTION_START):
+        #    rospy.loginfo("Received ACTION_START notification")
+        """if (self.last_action_notif_type == ActionEvent.ACTION_ABORT):
+            rospy.loginfo("Received ACTION_ABORT notification")
+        if (self.last_action_notif_type == ActionEvent.ACTION_FEEDBACK):
+            rospy.loginfo("Received ACTION_FEEDBACK notification")
+        if (self.last_action_notif_type == ActionEvent.ACTION_PAUSE):
+            rospy.loginfo("Received ACTION_PAUSE notification")
+        if (self.last_action_notif_type == ActionEvent.ACTION_PREPROCESS_ABORT):
+            rospy.loginfo("Received ACTION_PREPROCESS_ABORT notification")
+        if (self.last_action_notif_type == ActionEvent.ACTION_PREPROCESS_END):
+            rospy.loginfo("Received ACTION_PREPROCESS_END notification")
+        if (self.last_action_notif_type == ActionEvent.ACTION_PREPROCESS_START):
+            rospy.loginfo("Received ACTION_PREPROCESS_START notification")"""
+
+    """def handle_controller(self, data):
+        # pprint(vars(data))
+        # rospy.loginfo(data)
+        btnA = data.buttons[0]
+        btnB = data.buttons[1]
+        ax0 = data.axes[0]
+
+        if btnA == 1:
+            rospy.loginfo("Escaped")
+            self.escaped = True
+
+        if btnB == 1:
+            if self.gripper_closed:
+                self.example_send_gripper_command(1.0)
+                self.gripper_closed = False
+                rospy.loginfo("open")
+            else:
+                self.example_send_gripper_command(0.0)
+                self.gripper_closed = True
+                rospy.loginfo("close")"""
+
+        # rospy.loginfo("btnA is: " + str(btnA) + " ax0 is" + str(ax0))
+
+"""
+from rostopic echo /my_gen3_lite/gen3_lite_2f_gripper_controller/gripper_cmd/status
+
+header:
+  seq: 11502
+  stamp:
+    secs: 2288
+    nsecs: 400000000
+  frame_id: ''
+status_list:
+  -
+    goal_id:
+      stamp:
+        secs: 510
+        nsecs: 404000000
+      id: "/my_gen3_lite/my_gen3_lite_driver-65-510.404000000"
+    status: 3
+    text: ''
+
+
+
+from rostopic echo /my_gen3_lite/gen3_lite_2f_gripper_controller/gripper_cmd/feedback
+
+actuators:
+    ...
+interconnect:
+  oneof_tool_feedback:
+    gripper_feedback:
+      -
+        feedback_id:
+          identifier: 0
+        status_flags: 0
+        fault_bank_a: 0
+        fault_bank_b: 0
+        warning_bank_a: 0
+        warning_bank_b: 0
+        motor:
+          -
+            motor_id: 0
+            position: 0.998776376247406
+            velocity: 0.0
+            current_motor: 0.0
+            voltage: 0.0
+            temperature_motor: 0.0
+---
+
+"""
+
+
+
+

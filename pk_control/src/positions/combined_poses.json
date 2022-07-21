@@ -52,7 +52,13 @@
           "actionType":6
         },
         "name":"up_cart"
-      }
+      },
+        {
+          "reachPose":{"targetPose":{"x":0.22200000286102295,"y":0.03200000151991844,"z":0.21699999272823334,"thetaX":-91.0999984741211,"thetaY":-179.60000610351562,"thetaZ":1.100000023841858},"constraint":{"speed":{"translation":0.30000001192092896,"orientation":0}}},"applicationData":"{\"kinova\":{\"color\":0}}","handle":{"identifier":10093,"permission":7,"actionType":6},"name":"rotY right"
+        },
+        {
+            "reachPose":{"targetPose":{"x":0.21329133212566376,"y":-0.0930957943201065,"z":0.21658959984779358,"thetaX":-91.08116912841797,"thetaY":-179.57176208496094,"thetaZ":1.0274379253387451},"constraint":{"speed":{"translation":0.30000001192092896,"orientation":0}}},"applicationData":"{\"kinova\":{\"color\":0}}","handle":{"identifier":10096,"permission":7,"actionType":6},"name":"RotY 90 pulled right"
+          }
       ]
     },
     "jointAnglesGroup": {

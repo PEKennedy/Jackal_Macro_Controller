@@ -1,0 +1,3 @@
+{"poses":{"pose":[
+  {"reachPose":{"targetPose":{"x":0.22200000286102295,"y":0.03200000151991844,"z":0.21699999272823334,"thetaX":-91.0999984741211,"thetaY":-179.60000610351562,"thetaZ":1.100000023841858},"constraint":{"speed":{"translation":0.30000001192092896,"orientation":0}}},"applicationData":"{\"kinova\":{\"color\":0}}","handle":{"identifier":10093,"permission":7,"actionType":6},"name":"rotY right"}
+]}}

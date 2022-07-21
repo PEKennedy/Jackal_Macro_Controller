@@ -72,6 +72,11 @@ On Jackal this was ds4x, on my pc it was js2.
 Beware with bluetooth controller, it can disconnect whilst still on if not used in a while. If this happens, hold psbtn+share until blue light goes off,
 then hold psbtn again to rebind.
 
+remember to run the joy node
+Start the Joystick    
+
+    rosrun joy joy_node
+
 ## control_moveit.py
 Built from the moveit example, works with gazebo
 and the real robot without deprecated functions, 

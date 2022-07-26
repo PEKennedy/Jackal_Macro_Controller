@@ -27,11 +27,15 @@ def generate_circle(radius=1, num_pts=8, dir=1, offset=0):
     pts.append(pts[0]) #add the starting point to the end for a complete circle
     return pts
 
-def circle_offset(pt, offset):
-    return (pt + offset) % 360
+#def circle_offset(pt, offset):
+#    return (pt + offset) % 360
 
 #generate a circle around the x (forward) axis in 3d
-def gen_circle_axis(radius=0.5, num_pts=8, origin=[0.3812,0.0644,0.2299], dir=1, offset=0):
+#origin=[0.3812,0.0644,0.2299]
+def gen_circle_axis(radius=0.5, num_pts=8, origin=[0.40,0.0644,0.2299], dir=1, offset=0):
+    rospy.loginfo("Offset is:")
+    rospy.loginfo(offset)
+    rospy.loginfo(offset/57.2958)
     circle = generate_circle(radius, num_pts, dir, offset/57.2958)
     rospy.loginfo(circle)
     res = []
@@ -326,6 +330,7 @@ class Control:
         rospy.sleep(0.25)
         return True
 
+    #TODO: fix or get rid of this, it needs to more intelligently fix bad joint angles
     def fix_elbow(self):
         pass
         return
@@ -579,7 +584,7 @@ class Control:
             #rospy.loginfo(sequence["name"])
             if sequence["name"] == seq_name:
                 seqIndex = i
-                rospy.loginfo(sequence["name"])
+                #rospy.loginfo(sequence["name"])
                 break
             i += 1
 
@@ -593,10 +598,13 @@ class Control:
         return self.sequence_for_loop(tasks)
 
     def sequence_for_loop(self, tasks):
+        rospy.loginfo("Sequence for loop")
         success = True
         self.prevReach = tasks[0]["action"]["reachPose"]
         for task in tasks[1:]: #skip the first task, its the relative position's origin
+            rospy.loginfo("Do task")
             if self.seq_cancelled:
+                rospy.loginfo("Sequence was cancelled")
                 self.seq_cancelled = False
                 break
             if "sendGripperCommand" in task["action"]:
@@ -642,6 +650,7 @@ class Control:
             return self.wait_for_action_start_n_finish()#self.wait_for_action_end_or_abort()
 
     def go_to_cart_pose_relative(self, reachPose, prevReachPose):
+        rospy.loginfo("Go to cart pose relative")
         feedback = rospy.wait_for_message("/" + self.robot_name + "/base_feedback", BaseCyclic_Feedback)
 
         tPose = reachPose["targetPose"]
@@ -712,6 +721,33 @@ class Control:
             self.execute_sequence("grab_cart")
             self.grabbed = True
 
+    def getClosestHeightStage(self,h):
+        stage = -1
+        if(h <= 0.17):
+            stage = 0
+        elif(h <= 0.29):
+            stage = 1
+        elif(h <= 0.41):
+            stage = 2
+        else:
+            stage = 3
+        return stage
+
+    #also need to make sure the circle is made a fixed height
+
+    #get offset for circle based on height
+    def getCircleOffset(self):
+        feedback = rospy.wait_for_message("/" + self.robot_name + "/base_feedback", BaseCyclic_Feedback)
+        h = feedback.base.commanded_tool_pose_z
+        stage = self.getClosestHeightStage(h)
+        rospy.loginfo("stage")
+        rospy.loginfo(stage)
+        offset = 0
+        if(stage >= 2):
+            offset = 90
+        elif(stage == 0):
+            offset = 270
+        return offset
     #1down =                                 = 0.11
     #base  = 0.22991076111793518            ~= 0.23
     #1up   = 0.2299+0.35-0.22991076111793518 = 0.35
@@ -723,15 +759,7 @@ class Control:
         h = feedback.base.commanded_tool_pose_z
         #half way pts (x+0.6) 0.17, 0.29, 0.41
         possible_pts = [0.11, 0.23, 0.35, 0.47]
-        stage = -1
-        if(h <= 0.17):
-            stage = 0
-        elif(h <= 0.29):
-            stage = 1
-        elif(h <= 0.41):
-            stage = 2
-        else:
-            stage = 3
+        stage = self.getClosestHeightStage(h)
 
         change_stage_by = 0
         if(down):
@@ -768,9 +796,10 @@ class Control:
     #wrist angle chooses the angle to put the gripper at
     #TODO: it sounds like the Cartesian trajectory action server can do this, but smoothly
     def do_circle(self, radius=0.20, dir=1, wrist_fixed=False, wrist_angle=90, offset=0):
-        pts = gen_circle_axis(radius,12, dir=dir, offset=offset)
-        rospy.loginfo("___________ RES ___________")
-        rospy.loginfo(pts)
+
+        pts = gen_circle_axis(radius,12, dir=dir, offset=self.getCircleOffset())
+        #rospy.loginfo("___________ RES ___________")
+        #rospy.loginfo(pts)
         #tasks[0]["action"]["reachPose"] << what it should look like
         tasks = [
             { #default previous position
@@ -800,9 +829,44 @@ class Control:
                 #"thetaY": 0,#180-pt[3],
                 #"thetaZ": 90
             }}}})
-        rospy.loginfo("***** TASKS *****")
-        rospy.loginfo(tasks)
+        #rospy.loginfo("***** TASKS *****")
+        #rospy.loginfo(tasks)
+        #need to replace sequence_for_loop with a non-relative equivalent
         self.sequence_for_loop(tasks)
+        #FillCartesianWaypoint
+
+    def do_circle_smooth(self, radius=0.20, dir=1, wrist_fixed=False, wrist_angle=90, offset=0):
+        pts = gen_circle_axis(radius, 12, dir=dir, offset=self.getCircleOffset())
+        # Possible to execute waypointList via execute_action service or use execute_waypoint_trajectory service directly
+        req = ExecuteActionRequest()
+        trajectory = WaypointList()
+        feedback = rospy.wait_for_message("/" + self.robot_name + "/base_feedback", BaseCyclic_Feedback)
+
+        for pt in pts:
+            trajectory.waypoints.append(
+                self.FillCartesianWaypoint(
+                    pt[0], pt[1], pt[2],
+                    feedback.base.commanded_tool_pose_theta_x,
+                    feedback.base.commanded_tool_pose_theta_y,
+                    feedback.base.commanded_tool_pose_theta_z,
+                0)
+            )
+
+        trajectory.duration = 0
+        trajectory.use_optimal_blending = False
+
+        req.input.oneof_action_parameters.execute_waypoint_list.append(trajectory)
+
+        # Call the service
+        rospy.loginfo("Sending the robot to the cartesian pose...")
+        try:
+            self.execute_action(req)
+        except rospy.ServiceException:
+            rospy.logerr("Failed to call ExecuteWaypointTrajectory")
+            return False
+        else:
+            return self.wait_for_action_start_n_finish()
+
 
             # Xbox button mapping
             # 0==A, 1==B, 2==X, 3==Y
@@ -833,6 +897,9 @@ class Control:
     #TODO: xyz
     wrist_vertical = False
 
+    def check_wrist_vertical(self):
+        feedback = rospy.wait_for_message("/" + self.robot_name + "/base_feedback", BaseCyclic_Feedback)
+        return feedback.actuators[5].position < 45 or feedback.actuators[5].position > 315
 
     btnPressCount = 0
     btnIndLastPressed = -1
@@ -844,7 +911,7 @@ class Control:
         btnEscape = 8#data.buttons[8] #share on ps, xbox btn on xbox
         btnOptions = 9#data.buttons[9] #stbl on xbox
         #TODO: does this actually stop any previous, interrupted, actions?
-        self.stop_seq()
+        #self.stop_seq()
         if self.btnPressCount > 1 and btnIndex == self.btnIndLastPressed:
             #rospy.loginfo("Double Pressed")
             if btnIndex == 0:
@@ -870,12 +937,15 @@ class Control:
 
             if btnIndex == 6: #L
                 # if low
-                self.do_circle(-0.2, -1)
+                #self.do_circle(-0.2, -1,offset=0)
+                self.do_circle_smooth(-0.2, -1,offset=0)
             if btnIndex == 7:#R
+                #self.do_circle(0.2)
+                rospy.loginfo("Do Circle")
                 self.do_circle(0.2)
-
             #reset to home, then ready position (useful if arm elbow gets in wrong place)
             if btnIndex == btnOptions:
+                self.example_clear_faults()
                 self.example_home_the_robot()
                 self.go_param_pose(0)
                 self.rotate_wrist(90, abs_angle=True)
@@ -885,7 +955,11 @@ class Control:
             if btnIndex == 0:
                 rospy.loginfo("Screw R")
                 #self.screw_motion(45)
-                self.execute_sequence("Screw Right")
+
+                if self.check_wrist_vertical():#self.wrist_vertical:
+                    self.execute_sequence("Screw Right Gripper Up")
+                else:
+                    self.execute_sequence("Screw Right")
             if btnIndex == 1:
                 rospy.loginfo("do grab toggle")
                 self.grab_toggle()
@@ -908,8 +982,10 @@ class Control:
                 else:
                     self.rotate_wrist(0, True)
                     self.wrist_vertical = True
-            #if btnIndex == 7:
+            if btnIndex == 7:
             #    self.rotate_wrist(-45)
+                rospy.loginfo("Do Circle Smooth")
+                self.do_circle_smooth(0.15)
 
             # go straight to the ready position
             if btnIndex == btnOptions:

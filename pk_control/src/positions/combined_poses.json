@@ -58,7 +58,57 @@
         },
         {
             "reachPose":{"targetPose":{"x":0.21329133212566376,"y":-0.0930957943201065,"z":0.21658959984779358,"thetaX":-91.08116912841797,"thetaY":-179.57176208496094,"thetaZ":1.0274379253387451},"constraint":{"speed":{"translation":0.30000001192092896,"orientation":0}}},"applicationData":"{\"kinova\":{\"color\":0}}","handle":{"identifier":10096,"permission":7,"actionType":6},"name":"RotY 90 pulled right"
+          },
+        {
+        "reachPose": {
+          "targetPose": {
+            "x": 0.22199055552482605,
+            "y": 0.03209131956100464,
+            "z": 0.21668121218681335,
+            "thetaX": 134.054443359375,
+            "thetaY": -91.60778045654297,
+            "thetaZ": 137.02114868164062
+          },
+          "constraint": {
+            "speed": {
+              "translation": 0.30000001192092896,
+              "orientation": 0
+            }
           }
+        },
+        "applicationData": "{\"kinova\":{\"color\":0}}",
+        "handle": {
+          "identifier": 10107,
+          "permission": 7,
+          "actionType": 6
+        },
+        "name": "RotY Right gripper rot"
+      },
+        {
+        "reachPose": {
+          "targetPose": {
+            "x": 0.38098353147506714,
+            "y": 0.06428389251232147,
+            "z": 0.22870847582817078,
+            "thetaX": 9.382445335388184,
+            "thetaY": -93.14456176757812,
+            "thetaZ": 173.3060760498047
+          },
+          "constraint": {
+            "speed": {
+              "translation": 0.30000001192092896,
+              "orientation": 0
+            }
+          }
+        },
+        "applicationData": "{\"kinova\":{\"color\":0}}",
+        "handle": {
+          "identifier": 10106,
+          "permission": 7,
+          "actionType": 6
+        },
+        "name": "retracted_cart gripper rot"
+      }
       ]
     },
     "jointAnglesGroup": {

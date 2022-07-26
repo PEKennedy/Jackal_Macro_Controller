@@ -628,7 +628,354 @@
       }
     ]},
     {
-    "applicationData":"{\"kinova\":{\"color\":0}}","handle":{"identifier":10008,"permission":7},"name":"Screw Right","tasks":[{"applicationData":"{\"kinova\":{}}","action":{"reachPose":{"targetPose":{"x":0.38117900490760803,"y":0.0644112303853035,"z":0.22991076111793518,"thetaX":92.8780517578125,"thetaY":-3.9708383083343506,"thetaZ":92.5357894897461},"constraint":{"speed":{"translation":0.30000001192092896,"orientation":0}}},"applicationData":"{\"kinova\":{\"color\":0}}","handle":{"identifier":10051,"permission":7,"actionType":6},"name":"retracted_cart"},"groupIdentifier":0},{"applicationData":"{\"kinova\":{}}","action":{"applicationData":"{\"kinova\":{\"color\":0}}","handle":{"identifier":10103,"permission":1,"actionType":33},"sendGripperCommand":{"mode":3,"gripper":{"finger":[{"value":1,"fingerIdentifier":1}]},"duration":0},"name":"Close  End Effector"},"groupIdentifier":1},{"applicationData":"{\"kinova\":{}}","action":{"reachPose":{"targetPose":{"x":0.22200000286102295,"y":0.03200000151991844,"z":0.21699999272823334,"thetaX":-91.0999984741211,"thetaY":-179.60000610351562,"thetaZ":1.100000023841858},"constraint":{"speed":{"translation":0.30000001192092896,"orientation":0}}},"applicationData":"{\"kinova\":{\"color\":0}}","handle":{"identifier":10093,"permission":7,"actionType":6},"name":"rotY right"},"groupIdentifier":2},{"applicationData":"{\"kinova\":{}}","action":{"applicationData":"{\"kinova\":{\"color\":0}}","handle":{"identifier":10102,"permission":1,"actionType":33},"sendGripperCommand":{"mode":3,"gripper":{"finger":[{"value":-0.0005731491255573928,"fingerIdentifier":1}]},"duration":0},"name":"open claw"},"groupIdentifier":3},{"applicationData":"{\"kinova\":{}}","action":{"reachPose":{"targetPose":{"x":0.21329133212566376,"y":-0.0930957943201065,"z":0.21658959984779358,"thetaX":-91.08116912841797,"thetaY":-179.57176208496094,"thetaZ":1.0274379253387451},"constraint":{"speed":{"translation":0.30000001192092896,"orientation":0}}},"applicationData":"{\"kinova\":{\"color\":0}}","handle":{"identifier":10096,"permission":7,"actionType":6},"name":"RotY 90 pulled right"},"groupIdentifier":4},{"applicationData":"{\"kinova\":{}}","action":{"reachPose":{"targetPose":{"x":0.38117900490760803,"y":0.0644112303853035,"z":0.22991076111793518,"thetaX":92.8780517578125,"thetaY":-3.9708383083343506,"thetaZ":92.5357894897461},"constraint":{"speed":{"translation":0.30000001192092896,"orientation":0}}},"applicationData":"{\"kinova\":{\"color\":0}}","handle":{"identifier":10051,"permission":7,"actionType":6},"name":"retracted_cart"},"groupIdentifier":5}]
+      "applicationData": "{\"kinova\":{\"color\":0}}",
+      "handle": {
+        "identifier": 10008,
+        "permission": 7
+      },
+      "name": "Screw Right",
+      "tasks": [
+        {
+          "applicationData": "{\"kinova\":{}}",
+          "action": {
+            "reachPose": {
+              "targetPose": {
+                "x": 0.38101935386657715,
+                "y": 0.06433272361755371,
+                "z": 0.22910793125629425,
+                "thetaX": 86.96947479248047,
+                "thetaY": -176.34693908691406,
+                "thetaZ": 92.90765380859375
+              },
+              "constraint": {
+                "speed": {
+                  "translation": 0.30000001192092896,
+                  "orientation": 0
+                }
+              }
+            },
+            "applicationData": "{\"kinova\":{\"color\":0}}",
+            "handle": {
+              "identifier": 10105,
+              "permission": 7,
+              "actionType": 6
+            },
+            "name": "retracted_gripper_flipped"
+          },
+          "groupIdentifier": 0
+        },
+        {
+          "applicationData": "{\"kinova\":{}}",
+          "action": {
+            "applicationData": "{\"kinova\":{\"color\":0}}",
+            "handle": {
+              "identifier": 10103,
+              "permission": 1,
+              "actionType": 33
+            },
+            "sendGripperCommand": {
+              "mode": 3,
+              "gripper": {
+                "finger": [
+                  {
+                    "value": 1,
+                    "fingerIdentifier": 1
+                  }
+                ]
+              },
+              "duration": 0
+            },
+            "name": "Close End Effector"
+          },
+          "groupIdentifier": 1
+        },
+        {
+          "applicationData": "{\"kinova\":{}}",
+          "action": {
+            "reachPose": {
+              "targetPose": {
+                "x": 0.21334606409072876,
+                "y": -0.09281890094280243,
+                "z": 0.2155875861644745,
+                "thetaX": -88.88578033447266,
+                "thetaY": 0.07192109525203705,
+                "thetaZ": 0.98121178150177
+              },
+              "constraint": {
+                "speed": {
+                  "translation": 0.30000001192092896,
+                  "orientation": 0
+                }
+              }
+            },
+            "applicationData": "{\"kinova\":{\"color\":0}}",
+            "handle": {
+              "identifier": 10111,
+              "permission": 7,
+              "actionType": 6
+            },
+            "name": "RotY gripper flipped"
+          },
+          "groupIdentifier": 2
+        },
+        {
+          "applicationData": "{\"kinova\":{}}",
+          "action": {
+            "applicationData": "{\"kinova\":{\"color\":0}}",
+            "handle": {
+              "identifier": 10102,
+              "permission": 1,
+              "actionType": 33
+            },
+            "sendGripperCommand": {
+              "mode": 3,
+              "gripper": {
+                "finger": [
+                  {
+                    "value": -0.0005731491255573928,
+                    "fingerIdentifier": 1
+                  }
+                ]
+              },
+              "duration": 0
+            },
+            "name": "open claw"
+          },
+          "groupIdentifier": 3
+        },
+        {
+          "applicationData": "{\"kinova\":{}}",
+          "action": {
+            "reachPose": {
+              "targetPose": {
+                "x": 0.21329133212566376,
+                "y": -0.0930957943201065,
+                "z": 0.21658959984779358,
+                "thetaX": -91.08116912841797,
+                "thetaY": -179.57176208496094,
+                "thetaZ": 1.0274379253387451
+              },
+              "constraint": {
+                "speed": {
+                  "translation": 0.30000001192092896,
+                  "orientation": 0
+                }
+              }
+            },
+            "applicationData": "{\"kinova\":{\"color\":0}}",
+            "handle": {
+              "identifier": 10096,
+              "permission": 7,
+              "actionType": 6
+            },
+            "name": "RotY 90 pulled right"
+          },
+          "groupIdentifier": 4
+        },
+        {
+          "applicationData": "{\"kinova\":{}}",
+          "action": {
+            "reachPose": {
+              "targetPose": {
+                "x": 0.28101935386657715,
+                "y": 0.06433272361755371,
+                "z": 0.22910793125629425,
+                "thetaX": 86.96947479248047,
+                "thetaY": -176.34693908691406,
+                "thetaZ": 92.90765380859375
+              },
+              "constraint": {
+                "speed": {
+                  "translation": 0.30000001192092896,
+                  "orientation": 0
+                }
+              }
+            },
+            "applicationData": "{\"kinova\":{\"color\":0}}",
+            "handle": {
+              "identifier": 10105,
+              "permission": 7,
+              "actionType": 6
+            },
+            "name": "retracted_gripper_flipped"
+          },
+          "groupIdentifier": 5
+        }
+      ]
+    },
+    {
+      "applicationData": "{\"kinova\":{\"color\":0}}",
+      "handle": {
+        "identifier": 10008,
+        "permission": 7
+      },
+      "name": "Screw Right Gripper Up",
+      "tasks": [
+        {
+          "applicationData": "{\"kinova\":{}}",
+          "action": {
+            "reachPose": {
+              "targetPose": {
+                "x": 0.38098353147506714,
+                "y": 0.06428389251232147,
+                "z": 0.22870847582817078,
+                "thetaX": 9.382445335388184,
+                "thetaY": -93.14456176757812,
+                "thetaZ": 173.3060760498047
+              },
+              "constraint": {
+                "speed": {
+                  "translation": 0.30000001192092896,
+                  "orientation": 0
+                }
+              }
+            },
+            "applicationData": "{\"kinova\":{\"color\":0}}",
+            "handle": {
+              "identifier": 10106,
+              "permission": 7,
+              "actionType": 6
+            },
+            "name": "retracted_cart gripper rot"
+          }
+        },
+        {
+          "applicationData": "{\"kinova\":{}}",
+          "action": {
+            "applicationData": "{\"kinova\":{\"color\":0}}",
+            "handle": {
+              "identifier": 10103,
+              "permission": 1,
+              "actionType": 33
+            },
+            "sendGripperCommand": {
+              "mode": 3,
+              "gripper": {
+                "finger": [
+                  {
+                    "value": 1,
+                    "fingerIdentifier": 1
+                  }
+                ]
+              },
+              "duration": 0
+            },
+            "name": "Close  End Effector"
+          },
+          "groupIdentifier": 1
+        },
+        {
+          "applicationData": "{\"kinova\":{}}",
+          "action": {
+            "reachPose": {
+              "targetPose": {
+                "x": 0.22199055552482605,
+                "y": 0.03209131956100464,
+                "z": 0.21668121218681335,
+                "thetaX": 134.054443359375,
+                "thetaY": -91.60778045654297,
+                "thetaZ": 137.02114868164062
+              },
+              "constraint": {
+                "speed": {
+                  "translation": 0.30000001192092896,
+                  "orientation": 0
+                }
+              }
+            },
+            "applicationData": "{\"kinova\":{\"color\":0}}",
+            "handle": {
+              "identifier": 10107,
+              "permission": 7,
+              "actionType": 6
+            },
+            "name": "RotY Right gripper rot"
+          },
+          "groupIdentifier": 2
+        },
+        {
+          "applicationData": "{\"kinova\":{}}",
+          "action": {
+            "applicationData": "{\"kinova\":{\"color\":0}}",
+            "handle": {
+              "identifier": 10102,
+              "permission": 1,
+              "actionType": 33
+            },
+            "sendGripperCommand": {
+              "mode": 3,
+              "gripper": {
+                "finger": [
+                  {
+                    "value": -0.0005731491255573928,
+                    "fingerIdentifier": 1
+                  }
+                ]
+              },
+              "duration": 0
+            },
+            "name": "open claw"
+          },
+          "groupIdentifier": 3
+        },
+        {
+          "applicationData": "{\"kinova\":{}}",
+          "action":{
+            "reachPose": {
+              "targetPose": {
+                "x": 0.21338407695293427,
+                "y": -0.09293290972709656,
+                "z": 0.21605943143367767,
+                "thetaX": -109.92436981201172,
+                "thetaY": -93.18504333496094,
+                "thetaZ": 20.890527725219727
+              },
+              "constraint": {
+                "speed": {
+                  "translation": 0.30000001192092896,
+                  "orientation": 0
+                }
+              }
+            },
+            "applicationData": "{\"kinova\":{\"color\":0}}",
+            "handle": {
+              "identifier": 10108,
+              "permission": 7,
+              "actionType": 6
+            },
+            "name": "RotY Pulled back Gripper Rot"
+          }
+        },
+        {
+          "applicationData": "{\"kinova\":{}}",
+          "action": {
+            "reachPose": {
+              "targetPose": {
+                "x": 0.38098353147506714,
+                "y": 0.06428389251232147,
+                "z": 0.22870847582817078,
+                "thetaX": 9.382445335388184,
+                "thetaY": -93.14456176757812,
+                "thetaZ": 173.3060760498047
+              },
+              "constraint": {
+                "speed": {
+                  "translation": 0.30000001192092896,
+                  "orientation": 0
+                }
+              }
+            },
+            "applicationData": "{\"kinova\":{\"color\":0}}",
+            "handle": {
+              "identifier": 10106,
+              "permission": 7,
+              "actionType": 6
+            },
+            "name": "retracted_cart gripper rot"
+          },
+          "groupIdentifier": 5
+        }
+      ]
     }
   ]
 }}

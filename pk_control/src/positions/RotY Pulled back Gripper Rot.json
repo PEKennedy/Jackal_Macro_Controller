@@ -1,0 +1,31 @@
+{
+  "poses": {
+    "pose": [
+      {
+        "reachPose": {
+          "targetPose": {
+            "x": 0.21338407695293427,
+            "y": -0.09293290972709656,
+            "z": 0.21605943143367767,
+            "thetaX": -109.92436981201172,
+            "thetaY": -93.18504333496094,
+            "thetaZ": 20.890527725219727
+          },
+          "constraint": {
+            "speed": {
+              "translation": 0.30000001192092896,
+              "orientation": 0
+            }
+          }
+        },
+        "applicationData": "{\"kinova\":{\"color\":0}}",
+        "handle": {
+          "identifier": 10108,
+          "permission": 7,
+          "actionType": 6
+        },
+        "name": "RotY Pulled back Gripper Rot"
+      }
+    ]
+  }
+}

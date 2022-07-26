@@ -1076,8 +1076,26 @@ class Control:
                 #self.execute_sequence("Circle")
                 #self.execute_sequence("Screw Right") #almost perfect
 
-                self.grab_toggle()
-                self.grab_toggle()
+                #self.do_circle_smooth(-0.2, -1, offset=0)
+                self.do_circle(0.2)
+                self.rotate_wrist(0, abs_angle=True)
+
+                #self.grab_toggle()
+                #self.grab_toggle()
+                #self.execute_sequence("Poke_cart")
+
+                #self.do_circle_smooth(-0.2, -1, offset=0)
+                self.do_circle(0.2)
+                """self.cycle_height(True)
+                self.cycle_height(True)
+                self.cycle_height(True)
+                self.cycle_height(True)
+
+                self.cycle_height(False)
+                self.cycle_height(False)
+                self.cycle_height(False)
+                self.cycle_height(False)
+                self.cycle_height(False)"""
 
                 feedback = rospy.wait_for_message("/" + self.robot_name + "/base_feedback", BaseCyclic_Feedback)
                 rospy.loginfo(feedback.base)

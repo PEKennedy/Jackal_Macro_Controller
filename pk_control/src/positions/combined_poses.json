@@ -3,31 +3,30 @@
     "poses":{
       "pose":[
         {
-        "reachPose":{
-          "targetPose":{
-            "x":0.38117900490760803,
-            "y":0.0644112303853035,
-            "z":0.22991076111793518,
-            "thetaX":92.8780517578125,
-            "thetaY":-3.9708383083343506,
-            "thetaZ":92.5357894897461
-
+            "reachPose": {
+              "targetPose": {
+                "x":0.38117900490760803,
+                "y":0.0644112303853035,
+                "z":0.22991076111793518,
+                "thetaX":-90.0,
+                "thetaY":0.0,
+                "thetaZ":-90.0
+              },
+              "constraint": {
+                "speed": {
+                  "translation": 0.30000001192092896,
+                  "orientation": 0
+                }
+              }
+            },
+            "applicationData": "{\"kinova\":{\"color\":0}}",
+            "handle": {
+              "identifier": 10105,
+              "permission": 7,
+              "actionType": 6
+            },
+            "name": "retracted_gripper_flipped"
           },
-          "constraint":{
-            "speed":{
-              "translation":0.30000001192092896,
-              "orientation":0
-            }
-          }
-        },
-        "applicationData":"{\"kinova\":{\"color\":0}}",
-        "handle":{
-          "identifier":10051,
-          "permission":7,
-          "actionType":6
-        },
-        "name":"retracted_cart"
-      },
         {
         "reachPose":{
           "targetPose":{
@@ -108,6 +107,32 @@
           "actionType": 6
         },
         "name": "retracted_cart gripper rot"
+      },
+        {
+        "reachPose":{
+          "targetPose":{
+            "x":0.38117900490760803,
+            "y":0.0644112303853035,
+            "z":0.22991076111793518,
+            "thetaX":92.8780517578125,
+            "thetaY":-3.9708383083343506,
+            "thetaZ":92.5357894897461
+
+          },
+          "constraint":{
+            "speed":{
+              "translation":0.30000001192092896,
+              "orientation":0
+            }
+          }
+        },
+        "applicationData":"{\"kinova\":{\"color\":0}}",
+        "handle":{
+          "identifier":10051,
+          "permission":7,
+          "actionType":6
+        },
+        "name":"retracted_cart"
       }
       ]
     },

@@ -569,9 +569,15 @@ class Control:
             "x": 0.38117900490760803,
             "y": 0.0644112303853035,
             "z": 0.22991076111793518,
-            "thetaX": 92.8780517578125,
-            "thetaY": -3.9708383083343506,
-            "thetaZ": 92.5357894897461
+            #"thetaX": 92.8780517578125,
+            #"thetaY": -3.9708383083343506,
+            #"thetaZ": 92.5357894897461
+            #"x": 0.28101935386657715,
+            #"y": 0.06433272361755371,
+            #"z": 0.22910793125629425,
+            "thetaX": -90.0,
+            "thetaY": 0.0,
+            "thetaZ": -90.0
         }
     }
     seq_cancelled = False
@@ -809,9 +815,12 @@ class Control:
                             "x": 0.38117900490760803,
                             "y": 0.0644112303853035,
                             "z": 0.22991076111793518,
-                            "thetaX": 92.8780517578125,
-                            "thetaY": -3.9708383083343506,
-                            "thetaZ": 92.5357894897461
+                            #"thetaX": 92.8780517578125,
+                            #"thetaY": -3.9708383083343506,
+                            #"thetaZ": 92.5357894897461
+                            "thetaX": -90.0,
+                            "thetaY": 0.0,
+                            "thetaZ": -90.0
                         }
                     }
                 }
@@ -822,9 +831,12 @@ class Control:
                 "x":pt[0],
                 "y":pt[1],
                 "z":pt[2],
-                "thetaX": 92.8780517578125,
-                "thetaY": -3.9708383083343506,
-                "thetaZ": 92.5357894897461
+                "thetaX":-90.0,
+                "thetaY":0.0,
+                "thetaZ":-90.0
+                #"thetaX": 92.8780517578125,
+                #"thetaY": -3.9708383083343506,
+                #"thetaZ": 92.5357894897461
                 #"thetaX": 90,
                 #"thetaY": 0,#180-pt[3],
                 #"thetaZ": 90
@@ -1039,6 +1051,9 @@ class Control:
             self.example_home_the_robot()
             self.go_param_pose(0)
 
+            #feedback = rospy.wait_for_message("/" + self.robot_name + "/base_feedback", BaseCyclic_Feedback)
+            #rospy.loginfo(feedback.base)
+
             # Set the reference frame to "Mixed"
             success &= self.example_set_cartesian_reference_frame()
 
@@ -1049,6 +1064,8 @@ class Control:
             rospy.loginfo("rotate wrist")
             self.rotate_wrist(90, abs_angle=True)
             #self.rotate_wrist(180)
+            #feedback = rospy.wait_for_message("/" + self.robot_name + "/base_feedback", BaseCyclic_Feedback)
+            #rospy.loginfo(feedback.base)
 
             if rospy.get_param("/use_joy")==True:
                 rospy.loginfo("Using Joystick Input")
@@ -1056,8 +1073,17 @@ class Control:
                 rospy.spin()
             else:
                 rospy.loginfo("Doing Demo Sequence")
-                self.execute_sequence("Circle")
+                #self.execute_sequence("Circle")
+                self.execute_sequence("Screw Right")
 
+                feedback = rospy.wait_for_message("/" + self.robot_name + "/base_feedback", BaseCyclic_Feedback)
+                rospy.loginfo(feedback.base)
+
+                #self.rotate_wrist(0, abs_angle=True)
+                #self.execute_sequence("Screw Right Gripper Up")
+
+                #feedback = rospy.wait_for_message("/" + self.robot_name + "/base_feedback", BaseCyclic_Feedback)
+                #rospy.loginfo(feedback.base)
 
         if not success:
             rospy.logerr("The example encountered an error.")

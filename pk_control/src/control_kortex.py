@@ -1074,7 +1074,10 @@ class Control:
             else:
                 rospy.loginfo("Doing Demo Sequence")
                 #self.execute_sequence("Circle")
-                self.execute_sequence("Screw Right")
+                #self.execute_sequence("Screw Right") #almost perfect
+
+                self.grab_toggle()
+                self.grab_toggle()
 
                 feedback = rospy.wait_for_message("/" + self.robot_name + "/base_feedback", BaseCyclic_Feedback)
                 rospy.loginfo(feedback.base)

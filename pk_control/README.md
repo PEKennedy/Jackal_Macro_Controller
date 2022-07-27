@@ -77,11 +77,13 @@ Start the Joystick
 
     rosrun joy joy_node
 
-## control_moveit.py
-Built from the moveit example, works with gazebo
-and the real robot without deprecated functions, 
-but doesn't work well with pre-recorded actions.
-Stopped development of this version, use control_kortex.py
+Also: To view cameras, do the following in a new terminal
+
+    export ROS_MASTER_URI=http://cpr-j100-0574:11311
+    python3 ./pk_control/src/viewer.py
+
+
+
 
 ## control_kortex.py
 Example from github which uses an old version of ros_kortex to move the arm.
@@ -97,6 +99,15 @@ To add a sequence, use the kinova webapp, where you can record positions, and th
 them into sequences. The very first position in a sequence will be considered the origin coordinates
 the rest of the action is relative to, and will not be played.
 
+## viewer.py
+Based on Aditya's axis_camera.py, this program uses opencv and tkinter to provide a couple windows,
+one with the forward facing flir camera (in colour mode), and the rear facing axis camera 
+
+## control_moveit.py
+Built from the moveit example, works with gazebo
+and the real robot without deprecated functions, 
+but doesn't work well with pre-recorded actions.
+Stopped development of this version, use control_kortex.py instead
 
 ## arm.rviz
 Rviz preset for the kinova arm, however, Rviz isn't really needed for this project

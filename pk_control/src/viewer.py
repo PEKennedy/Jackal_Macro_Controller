@@ -3,7 +3,7 @@
 # based on Aditya's code
 # provides a camera feed display from Jackal, using the tkinter UI framework
 # note: you will need to run this: sudo apt-get install python3-pil python3-pil.imagetk
-
+# and this: sudo apt-get install ros-noetic-axis-camera
 import rospy
 import numpy as np
 import cv2

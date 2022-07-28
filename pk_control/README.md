@@ -77,13 +77,14 @@ Start the Joystick
 
     rosrun joy joy_node
 
-Also: To view cameras, do the following in a new terminal
+Also: To view cameras, do the following in a new terminal (local to your machine)
 
     export ROS_MASTER_URI=http://cpr-j100-0574:11311
     python3 ./pk_control/src/viewer.py
 
+you will need the following ros package
 
-
+    sudo apt-get install ros-noetic-axis-camera
 
 ## control_kortex.py
 Example from github which uses an old version of ros_kortex to move the arm.

@@ -143,10 +143,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-# for the future:
-# - Want a third window with Axis camera controls on it (pan,tilt,zoom?,focus?,autofocus?,brightness?,iris?)
-# - Want to be able to send velocity commands to the axis camera (thus proportional to joystick)
-# could do this by: assume publishRate == dt
-# setNewPan= getPan + (velIn*publishRate)
-# and of course velIn = joy*someConst

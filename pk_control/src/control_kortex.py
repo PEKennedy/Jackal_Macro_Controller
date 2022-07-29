@@ -5,6 +5,7 @@ import rospy
 import time
 from kortex_driver.srv import *
 from kortex_driver.msg import *
+from axis_camera.msg import Axis
 
 # import controller for example like https://andrewdai.co/xbox-controller-ros.html#rosjoy
 from sensor_msgs.msg import Joy
@@ -234,6 +235,12 @@ class Control:
             rospy.wait_for_service(set_device_id_full_name, 0.5)
             self.set_device_id = rospy.ServiceProxy(set_device_id_full_name, SetDeviceID)
 
+            rospy.loginfo("M") #set the axis camera to forward TODO: test this
+            self.cmd = rospy.Publisher("/axis/cmd", Axis, queue_size=1)
+            axis_cmd = Axis()
+            axis_cmd.pan = 0.0
+            axis_cmd.tilt = 15.0
+            self.cmd.publish(axis_cmd)
 
         except:
             self.is_init_success = False
@@ -373,7 +380,7 @@ class Control:
         else:
             return self.wait_for_action_start_n_finish()#self.wait_for_action_end_or_abort()
 
-    def screw_motion(self, angle):
+    """def screw_motion(self, angle):
         #rospy.loginfo(dir(kortex_driver.srv))
         rospy.loginfo("yyy")
         self.last_action_notif_type = None
@@ -409,7 +416,7 @@ class Control:
             return False
         else:
             return self.wait_for_action_start_n_finish()#self.wait_for_action_end_or_abort()
-
+    """
     def rotate_wrist(self, angle, abs_angle=False):
         #rospy.loginfo(dir(kortex_driver.srv))
         #rospy.loginfo("zzz")
@@ -733,10 +740,10 @@ class Control:
             stage = 0
         elif(h <= 0.29):
             stage = 1
-        elif(h <= 0.41):
-            stage = 2
+        #elif(h <= 0.41):
+        #    stage = 2
         else:
-            stage = 3
+            stage = 2#3
         return stage
 
     #also need to make sure the circle is made a fixed height
@@ -774,9 +781,9 @@ class Control:
             change_stage_by = 1
 
         if(down and stage == 0):
-            stage = 3
+            stage = 2#3
         else:
-            stage = (stage+change_stage_by) % 4
+            stage = (stage+change_stage_by) % 3#4
 
         position_vec = [
             feedback.base.commanded_tool_pose_x,
@@ -924,6 +931,7 @@ class Control:
         btnOptions = 9#data.buttons[9] #stbl on xbox
         #TODO: does this actually stop any previous, interrupted, actions?
         #self.stop_seq()
+        self.send_stop_command()
         if self.btnPressCount > 1 and btnIndex == self.btnIndLastPressed:
             #rospy.loginfo("Double Pressed")
             if btnIndex == 0:

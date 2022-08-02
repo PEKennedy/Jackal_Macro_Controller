@@ -15,7 +15,8 @@ from sensor_msgs.msg import CompressedImage
 from axis_camera.msg import Axis
 
 VERBOSE = False
-show_UI_controls = False
+show_UI_controls = False #UI controls don't work for me due to network issues
+# after those are fixed, these controls will likely still need a bit of debugging
 
 class View():
     def __init__(self, window, camera="flir", img_scale=0.8):

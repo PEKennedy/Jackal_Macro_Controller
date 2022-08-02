@@ -28,9 +28,6 @@ def generate_circle(radius=1, num_pts=8, dir=1, offset=0):
     pts.append(pts[0]) #add the starting point to the end for a complete circle
     return pts
 
-#def circle_offset(pt, offset):
-#    return (pt + offset) % 360
-
 #generate a circle around the x (forward) axis in 3d
 #origin=[0.3812,0.0644,0.2299]
 def gen_circle_axis(radius=0.5, num_pts=8, origin=[0.40,0.0644,0.2299], dir=1, offset=0):
@@ -235,12 +232,15 @@ class Control:
             rospy.wait_for_service(set_device_id_full_name, 0.5)
             self.set_device_id = rospy.ServiceProxy(set_device_id_full_name, SetDeviceID)
 
-            rospy.loginfo("M") #set the axis camera to forward TODO: test this
+            rospy.loginfo("M") #set the axis camera to forward
             self.cmd = rospy.Publisher("/axis/cmd", Axis, queue_size=1)
-            axis_cmd = Axis()
-            axis_cmd.pan = 0.0
-            axis_cmd.tilt = 15.0
-            self.cmd.publish(axis_cmd)
+
+
+            rospy.loginfo("N")
+            #base/send_twist_command or /send_twist_joystick_command
+            send_twist_command_full_name = '/' + self.robot_name + '/base/send_twist_joystick_command'
+            rospy.wait_for_service(send_twist_command_full_name)
+            self.send_twist_command = rospy.ServiceProxy(send_twist_command_full_name, SendTwistJoystickCommand)
 
         except:
             self.is_init_success = False
@@ -506,6 +506,31 @@ class Control:
 
         return waypoint
 
+    def send_joy_twist_command(self):
+        req = SendTwistJoystickCommandRequest() #Request?
+        req.input = TwistCommand()
+        req.input.reference_frame = CartesianReferenceFrame.CARTESIAN_REFERENCE_FRAME_BASE #??
+        req.input.twist = Twist()
+        req.input.twist.linear_x = 300.0 #angular_x
+        req.input.twist.linear_y = 0.0
+        req.input.twist.linear_z = 0.0
+        req.input.twist.angular_x = 0.0
+        req.input.twist.angular_y = 0.0
+        req.input.twist.angular_z = 0.0
+        req.input.duration = 5000
+        rospy.loginfo(req)
+
+
+        # Call the service
+        try:
+            self.send_twist_command(req)
+        except rospy.ServiceException:
+            rospy.logerr("Failed to call SendTwistCommand")
+            return False
+        else:
+            time.sleep(0.5)
+            return True
+
     def example_send_gripper_command(self, value):
         # Initialize the request
         # Close the gripper
@@ -517,7 +542,7 @@ class Control:
         req.input.mode = GripperMode.GRIPPER_POSITION
 
         rospy.loginfo("Sending the gripper command...")
-
+        rospy.loginfo(req)
         # Call the service
         try:
             self.send_gripper_command(req)
@@ -749,16 +774,16 @@ class Control:
     #also need to make sure the circle is made a fixed height
 
     #get offset for circle based on height
-    def getCircleOffset(self):
+    def getCircleOffset(self, reverse=False):
         feedback = rospy.wait_for_message("/" + self.robot_name + "/base_feedback", BaseCyclic_Feedback)
         h = feedback.base.commanded_tool_pose_z
         stage = self.getClosestHeightStage(h)
         rospy.loginfo("stage")
         rospy.loginfo(stage)
         offset = 0
-        if(stage >= 2):
+        if(stage >= 2 and not reverse or stage == 0 and reverse):
             offset = 90
-        elif(stage == 0):
+        elif(stage == 0 and not reverse or stage >= 2 and reverse):
             offset = 270
         return offset
     #1down =                                 = 0.11
@@ -809,8 +834,8 @@ class Control:
     #wrist angle chooses the angle to put the gripper at
     #TODO: it sounds like the Cartesian trajectory action server can do this, but smoothly
     def do_circle(self, radius=0.20, dir=1, wrist_fixed=False, wrist_angle=90, offset=0):
-
-        pts = gen_circle_axis(radius,12, dir=dir, offset=self.getCircleOffset())
+        reverse = radius < 0
+        pts = gen_circle_axis(radius,12, dir=dir, offset=self.getCircleOffset(reverse))
         #rospy.loginfo("___________ RES ___________")
         #rospy.loginfo(pts)
         #tasks[0]["action"]["reachPose"] << what it should look like
@@ -936,8 +961,9 @@ class Control:
             #rospy.loginfo("Double Pressed")
             if btnIndex == 0:
                 #self.control_angle_vel() #test twisting
-                rospy.loginfo("Screw L")
+                #rospy.loginfo("Screw L")
                 #self.screw_motion(-45)
+                self.send_joy_twist_command()
             if btnIndex == 1:
                 self.execute_sequence("Poke_cart")
                 rospy.loginfo("Fix Elbow")
@@ -952,15 +978,12 @@ class Control:
                  #self.stop_seq()
             if btnIndex == 3:
                 rospy.loginfo("Go Down")
-                #self.execute_sequence("down")
                 self.cycle_height(True)
 
             if btnIndex == 6: #L
-                # if low
-                #self.do_circle(-0.2, -1,offset=0)
-                self.do_circle_smooth(-0.2, -1,offset=0)
+                rospy.loginfo("Do Circle L")
+                self.do_circle(-0.2, -1,offset=0) #TODO:breaks >> goes to axis cam regardless of height
             if btnIndex == 7:#R
-                #self.do_circle(0.2)
                 rospy.loginfo("Do Circle")
                 self.do_circle(0.2)
             #reset to home, then ready position (useful if arm elbow gets in wrong place)
@@ -1053,6 +1076,11 @@ class Control:
             # *******************************************************************************
             # Activate the action notifications
             success &= self.example_subscribe_to_a_robot_notification()
+
+            axis_cmd = Axis()
+            axis_cmd.pan = 0.0
+            axis_cmd.tilt = 5.0
+            self.cmd.publish(axis_cmd)
 
             rospy.loginfo("go to home")
 

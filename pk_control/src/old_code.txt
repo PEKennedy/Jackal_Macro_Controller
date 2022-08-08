@@ -1,5 +1,147 @@
 
 
+    """#TODO: fix or get rid of this, it needs to more intelligently fix bad joint angles
+    def fix_elbow(self):
+        pass
+        return
+        self.last_action_notif_type = None
+        # Get the actual cartesian pose to increment it
+        # You can create a subscriber to listen to the base_feedback
+        # Here we only need the latest message in the topic though
+        feedback = rospy.wait_for_message("/" + self.robot_name + "/base_feedback", BaseCyclic_Feedback)
+
+        # Call the service
+        rospy.loginfo(self.degrees_of_freedom)
+        req = PlayJointTrajectoryRequest()
+        for i in range(self.degrees_of_freedom):
+            rospy.loginfo(i)
+            temp_angle = JointAngle()
+            temp_angle.joint_identifier = i
+            temp_angle.value = feedback.actuators[i].position
+            if i == 1:
+                rospy.loginfo(temp_angle.value)
+                if temp_angle.value < 270:
+                    temp_angle.value = 280
+                #temp_angle.value += angle
+                #rospy.loginfo(temp_angle.value)
+            if i == 2:
+                rospy.loginfo(temp_angle.value)
+                if temp_angle.value > 20 or temp_angle.value < 10:
+                    temp_angle.value = 15
+                #temp_angle.value += angle
+                #rospy.loginfo(temp_angle.value)
+            req.input.joint_angles.joint_angles.append(temp_angle)
+
+        rospy.loginfo("Sending the robot to the cartesian pose...")
+        try:
+            self.play_joint_trajectory(req)
+            feedback = rospy.wait_for_message("/" + self.robot_name + "/base_feedback", BaseCyclic_Feedback)
+            #rospy.loginfo(feedback.actuators[0])
+        except rospy.ServiceException:
+            rospy.logerr("Failed to call PlayCartesianTrajectory")
+            return False
+        else:
+            return self.wait_for_action_start_n_finish()#self.wait_for_action_end_or_abort()
+    """
+    """
+    #I thought this might provide velocity control, doesn't seem to work
+    def send_joy_twist_command(self):
+        req = SendTwistJoystickCommandRequest() #Request?
+        req.input = TwistCommand()
+        req.input.reference_frame = CartesianReferenceFrame.CARTESIAN_REFERENCE_FRAME_BASE #??
+        req.input.twist = Twist()
+        req.input.twist.linear_x = 300.0 #angular_x
+        req.input.twist.linear_y = 0.0
+        req.input.twist.linear_z = 0.0
+        req.input.twist.angular_x = 0.0
+        req.input.twist.angular_y = 0.0
+        req.input.twist.angular_z = 0.0
+        req.input.duration = 5000
+        rospy.loginfo(req)
+
+
+        # Call the service
+        try:
+            self.send_twist_command(req)
+        except rospy.ServiceException:
+            rospy.logerr("Failed to call SendTwistCommand")
+            return False
+        else:
+            time.sleep(0.5)
+            return True
+    """
+    """def screw_motion(self, angle):
+        #rospy.loginfo(dir(kortex_driver.srv))
+        rospy.loginfo("yyy")
+        self.last_action_notif_type = None
+        feedback = rospy.wait_for_message("/" + self.robot_name + "/base_feedback", BaseCyclic_Feedback)
+
+        rospy.loginfo(feedback.actuators[2].position)
+        rospy.loginfo(feedback.actuators[3].position)
+        rospy.loginfo(feedback.actuators[4].position)
+
+        req = PlayCartesianTrajectoryRequest()
+        req.input.target_pose.x = feedback.base.commanded_tool_pose_x
+        req.input.target_pose.y = feedback.base.commanded_tool_pose_y
+        req.input.target_pose.z = feedback.base.commanded_tool_pose_z
+        req.input.target_pose.theta_x = feedback.base.commanded_tool_pose_theta_x
+        req.input.target_pose.theta_y = feedback.base.commanded_tool_pose_theta_y
+        req.input.target_pose.theta_z = feedback.base.commanded_tool_pose_theta_z + angle
+
+        pose_speed = CartesianSpeed()
+        pose_speed.translation = 0.1
+        pose_speed.orientation = 15
+        req.input.constraint.oneof_type.speed.append(pose_speed)
+        # The constraint is a one_of in Protobuf. The one_of concept does not exist in ROS
+        # To specify a one_of, create it and put it in the appropriate list of the oneof_type member of the ROS object :
+        #req.input.constraint.oneof_type.speed.append(pose_speed)
+
+        rospy.loginfo("Sending the robot to the cartesian pose...")
+        try:
+            self.play_cartesian_trajectory(req)
+            #feedback = rospy.wait_for_message("/" + self.robot_name + "/base_feedback", BaseCyclic_Feedback)
+            #rospy.loginfo(feedback.actuators[0])
+        except rospy.ServiceException:
+            rospy.logerr("Failed to call PlayCartesianTrajectory")
+            return False
+        else:
+            return self.wait_for_action_start_n_finish()#self.wait_for_action_end_or_abort()
+    """
+
+                """rospy.loginfo("J")
+
+            #self.ctrlInfo = ActuatorConfig.ControlModeInformation()
+            set_control_mode_full_name = '/' + self.robot_name + '/actuator_config/set_control_mode'
+            rospy.wait_for_service(set_control_mode_full_name)
+            self.set_control_mode = rospy.ServiceProxy(set_control_mode_full_name, SetControlMode)
+
+            #rospy.loginfo(ActuatorConfig_ControlModeInformation())
+            #rospy.loginfo(ActuatorConfig_ControlMode.VELOCITY)
+            # / my_gen3_lite / actuator_config / set_control_mode
+            rospy.loginfo("K")
+
+            joint_velocity_full_name = '/' + self.robot_name + '/base/send_selected_joint_speed_command'
+            rospy.wait_for_service(joint_velocity_full_name)
+            self.joint_velocity_command = rospy.ServiceProxy(joint_velocity_full_name, SendSelectedJointSpeedCommand)#JointSpeed)
+
+            rospy.loginfo("L")
+
+            # TEST
+            read_all_devices_full_name = '/' + self.robot_name + '/device_manager/read_all_devices'
+            rospy.wait_for_service(read_all_devices_full_name, 0.5)
+            self.read_all_devices = rospy.ServiceProxy(read_all_devices_full_name, ReadAllDevices)
+
+            set_device_id_full_name = '/' + self.robot_name + '/actuator_config/set_device_id'
+            rospy.wait_for_service(set_device_id_full_name, 0.5)
+            self.set_device_id = rospy.ServiceProxy(set_device_id_full_name, SetDeviceID)"""
+
+            """rospy.loginfo("N")
+            #base/send_twist_command or /send_twist_joystick_command
+            send_twist_command_full_name = '/' + self.robot_name + '/base/send_twist_joystick_command'
+            rospy.wait_for_service(send_twist_command_full_name)
+            self.send_twist_command = rospy.ServiceProxy(send_twist_command_full_name, SendTwistJoystickCommand)
+            """
+
             #emergency stop
             # rostopic pub /my_gen3/in/emergency_stop std_msgs/Empty "{}"
 
@@ -18,6 +160,37 @@
             #   value: -0.57
             #   duration: 0"
 
+    """def do_circle_smooth(self, radius=0.20, dir=1, wrist_fixed=False, wrist_angle=90, offset=0):
+        pts = gen_circle_axis(radius, 12, dir=dir, offset=self.getCircleOffset())
+        # Possible to execute waypointList via execute_action service or use execute_waypoint_trajectory service directly
+        req = ExecuteActionRequest()
+        trajectory = WaypointList()
+        feedback = rospy.wait_for_message("/" + self.robot_name + "/base_feedback", BaseCyclic_Feedback)
+
+        for pt in pts:
+            trajectory.waypoints.append(
+                self.FillCartesianWaypoint(
+                    pt[0], pt[1], pt[2],
+                    feedback.base.commanded_tool_pose_theta_x,
+                    feedback.base.commanded_tool_pose_theta_y,
+                    feedback.base.commanded_tool_pose_theta_z,
+                0)
+            )
+
+        trajectory.duration = 0
+        trajectory.use_optimal_blending = False
+
+        req.input.oneof_action_parameters.execute_waypoint_list.append(trajectory)
+
+        # Call the service
+        rospy.loginfo("Sending the robot to the cartesian pose...")
+        try:
+            self.execute_action(req)
+        except rospy.ServiceException:
+            rospy.logerr("Failed to call ExecuteWaypointTrajectory")
+            return False
+        else:
+            return self.wait_for_action_start_n_finish()"""
 
     def example_send_joint_angles(self):
         self.last_action_notif_type = None

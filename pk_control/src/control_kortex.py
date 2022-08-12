@@ -672,18 +672,18 @@ class Control:
                             "x":feedback.base.commanded_tool_pose_x,
                             "y":feedback.base.commanded_tool_pose_y,
                             "z":feedback.base.commanded_tool_pose_z,
-                            "thetaX": feedback.base.tool_pose_theta_x,
-                            "thetaY": feedback.base.tool_pose_theta_y,
-                            "thetaZ": feedback.base.tool_pose_theta_z,
+                            #"thetaX": feedback.base.tool_pose_theta_x,
+                            #"thetaY": feedback.base.tool_pose_theta_y,
+                            #"thetaZ": feedback.base.tool_pose_theta_z,
                             #"x": 0.38117900490760803,
                             #"y": 0.0644112303853035,
                             #"z": 0.22991076111793518,
                             #"thetaX": 92.8780517578125,
                             #"thetaY": -3.9708383083343506,
                             #"thetaZ": 92.5357894897461
-                            #"thetaX": -90.0,
-                            #"thetaY": 0.0,
-                            #"thetaZ": -90.0
+                            "thetaX": -90.0,
+                            "thetaY": 0.0,
+                            "thetaZ": -90.0
                         }
                     }
                 }

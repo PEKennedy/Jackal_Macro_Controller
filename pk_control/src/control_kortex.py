@@ -634,9 +634,15 @@ class Control:
         rospy.loginfo("X,y")
         rospy.loginfo(x)
         rospy.loginfo(h)
-        theta = math.atan(h/x)
-        new_x = rad*math.cos(theta)
-        new_y = rad*math.sin(theta)
+        theta = 0
+        #we need to take the absolute value of atan to assure that -x,+y values give positive angles
+        #and ^^^ *-1 when x,-y to assure negative angles
+        if h > 0:
+            theta = math.atan(-1*abs(h/x))
+        else:
+            theta = math.atan(abs(h/x))
+        #new_x = rad*math.cos(theta)
+        #new_y = rad*math.sin(theta)
         offset = 0
         #if we are close to the outer radius of the circle, pick an offset based on that
         #dist = math.sqrt((new_x-x)*(new_x-x) + (new_y-h)*(new_y-h))

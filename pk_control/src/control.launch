@@ -6,32 +6,24 @@
     <arg name="use_joy" default="true"/>
     <arg name="joy_name" default="js2"/> <!--Some typical ones are js1, js2, ds4x (ps4 bluetooth)-->
 
-
     <!-- positions -->
-    <!--<rosparam file="$(find pk_control)/src/positions/full_forward.json" />
-    <rosparam file="$(find pk_control)/src/positions/retracted_cart.json" />
-    <rosparam file="$(find pk_control)/src/positions/up.json" />-->
     <rosparam file="$(find pk_control)/src/positions/combined_poses.json" />
 
     <!-- sequences -->
-    <!--<rosparam file="$(find pk_control)/src/sequences/put_back_cart.json" />
-    <rosparam file="$(find pk_control)/src/sequences/grab_cart.json" />-->
     <rosparam file="$(find pk_control)/src/sequences/combined_seqs.json" />
-
 
     <group if="$(arg use_joy)">
         <param name="use_joy" value="true"/>
         <param name="joy_node/dev" value="$(eval '/dev/input/' + str(joy_name))"/>
-
     </group>
     <group unless="$(arg use_joy)">
         <param name="use_joy" value="false"/>
     </group>
-<!--<node name="joy" pkg="joy" type="joy_node" respawn="true" />-->
 
     <!-- Launch the example in that namespace control_kortex.py clear_params="true"-->
     <node name="pk_arm_controller" pkg="pk_control" type="control_kortex.py" output="screen"
-    launch-prefix="bash -c 'sleep $(arg start_delay_seconds); $0 $@' " ns="$(arg robot_name)" clear_params="true">
+        launch-prefix="bash -c 'sleep $(arg start_delay_seconds); $0 $@' "
+        ns="$(arg robot_name)" clear_params="true">
 
         <param name="robot_name" value="$(arg robot_name)"/>
     </node>

@@ -4,13 +4,13 @@
 # provides a camera feed display from Jackal, using the tkinter UI framework
 # note: you will need to run this: sudo apt-get install python3-pil python3-pil.imagetk
 # and this: sudo apt-get install ros-noetic-axis-camera
+
 import rospy
 import numpy as np
 import cv2
 from tkinter import *
 from PIL import Image, ImageTk
 from std_msgs.msg import String
-from sensor_msgs.msg import Joy
 from sensor_msgs.msg import CompressedImage
 from axis_camera.msg import Axis
 
@@ -18,6 +18,7 @@ VERBOSE = False
 show_UI_controls = False #UI controls don't work for me due to network issues
 # after those are fixed, these controls will likely still need a bit of debugging
 
+#this class represents a window containing nothing but a camera feed
 class View():
     def __init__(self, window, camera="flir", img_scale=0.8):
         ############### Tkinter Window Properties and Setup ########
@@ -55,7 +56,10 @@ class View():
         self.window.label.config(image=self.imgtk)
         self.window.label.image = self.imgtk
 
+#window containing buttons for controlling the axis camera
+#I was unable to test this due to the network bug
 class Control():
+    #the following are the axis camera parameters:
     #pan, tilt, zoom
     #focus, brightness, iris, autofocus
     def __init__(self, window):
@@ -64,8 +68,7 @@ class Control():
         self.btnD = Button(window, text='Tilt Down', command=self.tiltD).pack(expand=True, side=BOTTOM)
         self.btnL = Button(window, text='Pan Left', command=self.panL).pack(expand=True, side=LEFT)
         self.btnR = Button(window, text='Pan Right', command=self.panR).pack(expand=True, side=RIGHT)
-        #self.state = rospy.Subscriber("/axis/state", CompressedImage, self.update_image,
-        #                                queue_size=1)
+
         self.cmd = rospy.Publisher("/axis/cmd", Axis, queue_size=1)
 
     def getState(self):
@@ -86,12 +89,8 @@ class Control():
     def panL(self):
         rospy.loginfo("Pan Left")
         state = self.getState()
-        #rospy.loginfo(state)
         axis_cmd = Axis()
         axis_cmd.pan = state.pan + 20.0
-        #axis_cmd.tilt = 20.0
-        #rospy.loginfo("###### Sending the following #####")
-        #rospy.loginfo(axis_cmd)
         self.cmd.publish(axis_cmd)
 
     def panR(self):
@@ -115,6 +114,7 @@ class Control():
         axis_cmd.pan = state.tilt - 15.0
         self.cmd.publish(axis_cmd)
 
+#Spawn windows for the controls, flir camera, and axis camera
 def main():
     #rospy.loginfo("Do main")
     rospy.init_node("viewer", anonymous=True)

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import sys
 import rospy
 import time
 from kortex_driver.srv import *
@@ -9,13 +8,12 @@ from axis_camera.msg import Axis
 
 # import controller for example like https://andrewdai.co/xbox-controller-ros.html#rosjoy
 from sensor_msgs.msg import Joy
-import copy
 from functools import partial #used to pass arguments in a callback
 
-#np isn't installed on Jackal, so it can't be used
+#np isn't installed on Jackal, so it can't be used, use math instead
 import math
 
-# generate the points of an n-gon (use this for generating circular motion)
+# generate the points of an n-gon given n and radius, etc (use this for generating circular motion)
 def generate_circle(radius=1, num_pts=8, dir=1, offset=0):
     pts = []
     tau = 6.283185 # tau= 2*pi ~=6.283185
@@ -28,8 +26,7 @@ def generate_circle(radius=1, num_pts=8, dir=1, offset=0):
     pts.append(pts[0]) #add the starting point to the end for a complete circle
     return pts
 
-#generate a circle around the x (forward) axis in 3d
-#origin=[0.3812,0.0644,0.2299]
+#generate a circle around the x (forward) axis in 3d, centered at an origin
 def gen_circle_axis(radius=0.5, num_pts=8, origin=[0.40,0.0644,0.2299], dir=1, offset=0):
     rospy.loginfo("Offset is:")
     rospy.loginfo(offset)
@@ -43,6 +40,7 @@ def gen_circle_axis(radius=0.5, num_pts=8, origin=[0.40,0.0644,0.2299], dir=1, o
     res.append([origin[0],origin[1],origin[2],0])
     return res
 
+"""Some vector manipulation functions since we don't have numpy"""
 #return the distance between 2 vector3s (unlike above, they have (x,y,z) (tuples?) rather than [x,y,z]
 def vec_dist(a,b):
     vec = vec_sub(a,b)
@@ -63,26 +61,27 @@ def vec_add(a,b):
         result.append(val1 + val2)
     return result
 
+# Function to limit the position of the arm to areas where it (probably) won't get stuck
 # take a vec3 position, limit it to something in reach of the arm
-# judging by full_forward, base height (origin) is around 0.25 or 0.26 (z axis >> up)
+# judging by full_forward position, the base height (origin) is around 0.25 or 0.26
 # and the max distance is 0.75 or 0.76
+# ** Note that for the arm: z=up, y=side to side, x=Forwards, in the vector3 x=axis 0, y=1, z=2
 def spherical_dist_bound(vec, max_dist=0.74, origin=[0,0,0.25]):
-    np_origin = origin#np.array(origin)
-    dist = vec_dist(vec,np_origin) # vec_dist(np_origin,vec)
-    rospy.loginfo("vec")
-    rospy.loginfo(vec)
-    rospy.loginfo("dist")
-    rospy.loginfo(dist)
-    #rospy.loginfo(max)
+    np_origin = origin
+    dist = vec_dist(vec, np_origin)
+    #rospy.loginfo("vec")
+    #rospy.loginfo(vec)
+    #rospy.loginfo("dist")
+    #rospy.loginfo(dist)
 
     ret = vec
     if dist > max_dist:
         ratio = max_dist/dist
-        temp = vec_sub(vec,np_origin)#(vec-np_origin)*ratio
-        ret = vec_add(temp,np_origin)#temp + np_origin
+        temp = vec_sub(vec, np_origin)
+        ret = vec_add(temp, np_origin)
         rospy.loginfo("limit")
         rospy.loginfo(ratio)
-    if ret[2] > 0.45: #limit the height
+    if ret[2] > 0.45: #limit the height, unneeded due to ret=min_dist_bound
         ret[2] = 0.45
     ret = min_dist_bound(ret)
     return ret
@@ -109,7 +108,8 @@ def min_dist_bound(vec):#, base, max_h, min_h):
         vec_out[2] = 0.11
     return vec_out
 
-#for most actions, we won't want L/R deviation in order for them to work, so selectively apply this function
+#for most actions, we won't want L/R deviation in order for them to work, so selectively
+# apply this function
 def horizontal_dist_bound(vec):
     vec_out = vec
     if(vec[1] > 0.0645):
@@ -117,13 +117,21 @@ def horizontal_dist_bound(vec):
     elif(vec[1] < 0.064):
         vec_out[1] = 0.06448
     return vec_out
-# derived from the ExampleFullArmMove python class
+
+# derived from the ExampleFullArmMove python class in the ros_kortex examples
 class Control:
+    #did we cancel an action?
     escaped = False
+    #was the gripper last reported as open or closed?
     gripper_closed = False
 
     def __init__(self):
         try:
+            #Get various parameters we will use in the program from rosparams
+            #Then subscribe to various rostopics to get information from the robot
+            #and make functions that correspond to various rosservices to send messages to
+            # the arm
+
             rospy.init_node('example_full_arm_movement_python')
 
             self.HOME_ACTION_IDENTIFIER = 2
@@ -210,7 +218,7 @@ class Control:
             rospy.wait_for_service(send_stop_command_full_name)
             self.send_stop_command = rospy.ServiceProxy(send_stop_command_full_name, Stop)
 
-            rospy.loginfo("M") #set the axis camera to forward
+            rospy.loginfo("J") #set the axis camera to forward
             self.cmd = rospy.Publisher("/axis/cmd", Axis, queue_size=1)
 
         except:
@@ -218,16 +226,24 @@ class Control:
         else:
             self.is_init_success = True
 
+    # a callback function which will update the last notification we received from the robot
+    # of interest are the ACTION_START, ACTION_END, and ACTION_ABORT, which tell us if
+    # a ros_kortex sequence of arm movements started, or ended
     def cb_action_topic(self, notif):
         self.last_action_notif_type = notif.action_event
         if (self.last_action_notif_type == ActionEvent.ACTION_END):
             rospy.loginfo("Received ACTION_END notification")
 
+    # This functions checks that we recently received for a start and an end of a sequence
+    # (used in conjunction with a loop to wait for a sequence to complete)
+    # This was made to fix a problem where sequences would see the previous sequence's "ACTION_END"
+    # and thus never execute
     def wait_for_action_start_n_finish(self):
         while not rospy.is_shutdown():
             if(self.last_action_notif_type == ActionEvent.ACTION_START):
                 return self.wait_for_action_end_or_abort()
 
+    # checks for the ACTION_END or ACTION_ABORT event
     def wait_for_action_end_or_abort(self):
         while not rospy.is_shutdown():
             if (self.last_action_notif_type == ActionEvent.ACTION_END):
@@ -237,6 +253,7 @@ class Control:
             else:
                 time.sleep(0.01)
 
+    # from the example, activates publishing of action notifications
     def example_subscribe_to_a_robot_notification(self):
         # Activate the publishing of the ActionNotification
         req = OnNotificationActionTopicRequest()
@@ -252,6 +269,9 @@ class Control:
         rospy.sleep(1.0)
         return True
 
+    #Clears any faults (halting errors) from the kinova arm so we can use it
+    # A future improvement would be to find a way to detect a fault, and
+    # when one occurs, wait for an input to send it to a safe position
     def example_clear_faults(self):
         try:
             rospy.loginfo("Clear Faults....")
@@ -264,6 +284,8 @@ class Control:
             rospy.sleep(2.5)
             return True
 
+    # Sends the robot to a home position (kind-of imagine holding your forearm in front of your
+    # face)
     def example_home_the_robot(self):
         # The Home Action is used to home the robot. It cannot be deleted and is always ID #2:
         self.last_action_notif_type = None
@@ -286,8 +308,12 @@ class Control:
                 rospy.logerr("Failed to call ExecuteAction")
                 return False
             else:
-                return self.wait_for_action_start_n_finish()#self.wait_for_action_end_or_abort()
+                return self.wait_for_action_start_n_finish()
 
+    # There are 3 reference frames to use, essentially global, or local coordinates,
+    # or a mixture of global position, but local rotation coordinates
+    # (see https://github.com/Kinovarobotics/kortex/blob/master/api_python/doc/markdown/enums/Common/CartesianReferenceFrame.md)
+    # This function sets the arm to use the mixed reference frame
     def example_set_cartesian_reference_frame(self):
         self.last_action_notif_type = None
         # Prepare the request with the frame we want to set
@@ -307,6 +333,7 @@ class Control:
         rospy.sleep(0.25)
         return True
 
+    #
     def rotate_wrist(self, angle, abs_angle=False):
         self.last_action_notif_type = None
         # Get the actual cartesian pose to increment it
@@ -339,8 +366,11 @@ class Control:
         else:
             return self.wait_for_action_start_n_finish()#self.wait_for_action_end_or_abort()
 
-    #example which as I understand will work on the real robot, but not in simulation
-    #advantage is that it will also smooth out the motion?
+    # Example for moving in a sequence using the built-in cartesian waypoint list
+    # For now there is no advantage to using it over sequence_for_loop,
+    # as it doesn't work in simulation, while accomplishing the same thing as sequence_for_loop
+    # However, it doesn't use deprecated functions like sequence_for_loop, so it may become
+    # necessary to use this method in the future
     def example_send_cartesian_pose(self):
         self.last_action_notif_type = None
         # Get the actual cartesian pose to increment it
@@ -394,6 +424,7 @@ class Control:
 
         return waypoint
 
+    #Example for sending the gripper commands
     def example_send_gripper_command(self, value):
         # Initialize the request
         # Close the gripper
@@ -416,6 +447,8 @@ class Control:
             time.sleep(0.5)
             return True
 
+    #Function to read the current gripper position, since one isn't provided by default
+    # by ros_kortex
     gripper_cur_pos = 0.0
     def read_gripper_pos(self, data):
         #interconnect:oneof_tool_feedback:gripper_feedback:motor:position
@@ -423,8 +456,9 @@ class Control:
         self.gripper_cur_pos = data.interconnect.oneof_tool_feedback.gripper_feedback[0].motor[0].position/100
         #rospy.loginfo("Gripper pos is: "+str(self.gripper_cur_pos))
 
+    #Conntinually opens/closes the gripper until the gripper is within a threshold of a
+    # specified position
     def go_to_gripper_pose(self, command):
-
         #subscribe to where the current position of the finger is
         #lite_2f_gripper_controller feedback wasn't giving anything in simulation
         #sub = rospy.Subscriber("/"+self.robot_name+"/gen3_lite_2f_gripper_controller/gripper_cmd/feedback", InterconnectCyclic_Feedback, self.read_gripper_pos)
@@ -437,7 +471,7 @@ class Control:
 
         finger1 = command["gripper"]["finger"][0]
 
-        finger.finger_identifier = 1#finger1["fingerIdentifier"] #for now, hardcoded
+        finger.finger_identifier = 1 #finger1["fingerIdentifier"] #for now, hardcoded
         finger.value = min(max(0.01,finger1["value"]),0.99)
         rospy.loginfo(finger.value)
 
@@ -456,7 +490,6 @@ class Control:
                 time.sleep(0.5)
             sub.unregister()
             return True
-            #return self.wait_for_action_end_or_abort()
 
 
     prevReach = { #default previous position
@@ -464,18 +497,16 @@ class Control:
             "x": 0.38117900490760803,
             "y": 0.0644112303853035,
             "z": 0.22991076111793518,
-            #"thetaX": 92.8780517578125,
-            #"thetaY": -3.9708383083343506,
-            #"thetaZ": 92.5357894897461
-            #"x": 0.28101935386657715,
-            #"y": 0.06433272361755371,
-            #"z": 0.22910793125629425,
             "thetaX": -90.0,
             "thetaY": 0.0,
             "thetaZ": -90.0
         }
     }
     seq_cancelled = False
+
+    #Looks in the rosparams for sequences (combined_sequences.json)
+    # Searches for the sequence with the correct name, and then calls
+    # sequence_for_loop to iterate over the steps in each sequence
     def execute_sequence(self, seq_name, restrict_horizontal=True):
         self.seq_cancelled = False
         seqIndex = -1
@@ -498,6 +529,10 @@ class Control:
         tasks = rospy.get_param("/sequences/sequence")[seqIndex]["tasks"]
         return self.sequence_for_loop(tasks, restrict_horizontal)
 
+    # Given a task list (ie. a sequence), this will iterate through the tasks
+    #  and call go_to_cart_pose_relative, which moves the arm to a position
+    #  relative to where it previously was (self.prevReach), or moves the gripper
+    #  if seq_cancelled is ever true, the loop is stopped
     def sequence_for_loop(self, tasks, restrict_horizontal=True):
         rospy.loginfo("Sequence for loop")
         success = True
@@ -519,17 +554,22 @@ class Control:
                 self.prevReach = task["action"]["reachPose"]
             elif "reachJointAngles" in task["action"]:
                 rospy.loginfo("Execute Joint Angle Action")
-                #success &= go_gripper_pose()
+                # nothing implemented for a jointAngle type of position
             else:
                 success = False
                 rospy.loginfo("Invalid Command Type")
 
         return success
 
+    # if you want the robot to go to a single position (in combined_positions.json)
+    # you can use this function
     def go_param_pose(self, index):
         reachPose = rospy.get_param("/positions/poses/pose")[index]["reachPose"]
         return self.go_to_cart_pose(reachPose)
 
+    # reads a "reachPose" in a sequence and builds the appropriate
+    # object for moving the arm to that position, then passes it to play_cartesian_trajectory
+    # (the corresponding rosservice)
     def go_to_cart_pose(self, reachPose):
         tPose = reachPose["targetPose"]
         req = PlayCartesianTrajectoryRequest()
@@ -550,6 +590,11 @@ class Control:
         else:
             return self.wait_for_action_start_n_finish()#self.wait_for_action_end_or_abort()
 
+    # Takes a reachPose, and the last reachPose, calculates the relative motion that should
+    # be applied, then calls the rosservice
+    # calculating relative movement means that if the gripper is at a different
+    # height compared to the actual recorded sequence, it will complete the motion at
+    # this different height
     def go_to_cart_pose_relative(self, reachPose, prevReachPose, restrict_horizontal):
         rospy.loginfo("Go to cart pose relative")
         feedback = rospy.wait_for_message("/" + self.robot_name + "/base_feedback", BaseCyclic_Feedback)
@@ -574,12 +619,12 @@ class Control:
             feedback.base.commanded_tool_pose_y,
             feedback.base.commanded_tool_pose_z
         ]
-        nparr_vec = vec#np.array(vec)
-        nparr_prev_vec = prev_vec#np.array(prev_vec)
-        nparr_feedback = feedback_vec#np.array(feedback_vec)
+        nparr_vec = vec
+        nparr_prev_vec = prev_vec
+        nparr_feedback = feedback_vec
 
-        added_vec = vec_sub(nparr_vec,nparr_prev_vec) #(nparr_vec - nparr_prev_vec) #make it a relative movement (default relative to retracted)
-        added_vec = vec_add(added_vec,nparr_feedback)#added_vec + nparr_feedback #add the rel to our actual previous position
+        added_vec = vec_sub(nparr_vec, nparr_prev_vec) #make it a relative movement (default relative to retracted)
+        added_vec = vec_add(added_vec, nparr_feedback) #add the rel to our actual previous position
 
         #spherical dist bound subtracts the ordinary origin, then we can add our starting point
         vec_res = spherical_dist_bound(added_vec,0.6)
@@ -605,17 +650,17 @@ class Control:
         else:
             return self.wait_for_action_start_n_finish()
 
+    # stops any sequence in progress, and breaks the sequence_for_loop
     def stop_seq(self):
         self.seq_cancelled = True
         self.send_stop_command()
 
+    # checks the current gripper position, and chooses either the sequence grab or put back
+    # based on whether the gripper is currently open or closed
     grabbed = False
     def grab_toggle(self):
         msg = rospy.wait_for_message("/" + self.robot_name + "/base_feedback", BaseCyclic_Feedback)
         self.read_gripper_pos(msg)
-        #rospy.loginfo(msg)
-        #rospy.loginfo("===========")
-        #if self.grabbed:
         if self.gripper_cur_pos > 0.95:#< 0.05: #closed
             self.execute_sequence("put_back_cart")
             self.grabbed = False
@@ -623,9 +668,12 @@ class Control:
             self.execute_sequence("grab_cart")
             self.grabbed = True
 
-    #also need to make sure the circle is made a fixed height
 
-    #get offset for circle based on height
+    # The circular motion needs to be able to be started from any place around the outer
+    # radius of the circle (this allows for resuming a circular motion sequence after it is
+    # stopped). So this function finds the angle the gripper is at relative to the origin
+    # and then, if farther from a certain distance of the origin, will return that angle
+    # as the offset to use when starting the circular motion.
     def getCircleOffset(self, reverse=False, rad=0.2, origin=[0.40,0.06447,0.2299]):
         feedback = rospy.wait_for_message("/" + self.robot_name + "/base_feedback", BaseCyclic_Feedback)
 
@@ -641,12 +689,8 @@ class Control:
             theta = math.atan(-1*abs(h/x))
         else:
             theta = math.atan(abs(h/x))
-        #new_x = rad*math.cos(theta)
-        #new_y = rad*math.sin(theta)
         offset = 0
         #if we are close to the outer radius of the circle, pick an offset based on that
-        #dist = math.sqrt((new_x-x)*(new_x-x) + (new_y-h)*(new_y-h))
-
         #if we are close to the origin, then don't use the theta offset
         dist = math.sqrt(h*h + x*x)
         if(dist > 0.05): #< 0.1
@@ -665,8 +709,6 @@ class Control:
         reverse = radius < 0
         of = self.getCircleOffset(reverse,rad=radius)
         pts = gen_circle_axis(radius,12, dir=dir, offset=of)
-        #rospy.loginfo("___________ RES ___________")
-        #rospy.loginfo(pts)
         feedback = rospy.wait_for_message("/" + self.robot_name + "/base_feedback", BaseCyclic_Feedback)
 
         #tasks[0]["action"]["reachPose"] << what it should look like
@@ -678,15 +720,6 @@ class Control:
                             "x":feedback.base.commanded_tool_pose_x,
                             "y":feedback.base.commanded_tool_pose_y,
                             "z":feedback.base.commanded_tool_pose_z,
-                            #"thetaX": feedback.base.tool_pose_theta_x,
-                            #"thetaY": feedback.base.tool_pose_theta_y,
-                            #"thetaZ": feedback.base.tool_pose_theta_z,
-                            #"x": 0.38117900490760803,
-                            #"y": 0.0644112303853035,
-                            #"z": 0.22991076111793518,
-                            #"thetaX": 92.8780517578125,
-                            #"thetaY": -3.9708383083343506,
-                            #"thetaZ": 92.5357894897461
                             "thetaX": -90.0,
                             "thetaY": 0.0,
                             "thetaZ": -90.0
@@ -703,27 +736,18 @@ class Control:
                 "thetaX":-90.0,
                 "thetaY":0.0,
                 "thetaZ":-90.0
-                #"thetaX": 92.8780517578125,
-                #"thetaY": -3.9708383083343506,
-                #"thetaZ": 92.5357894897461
-                #"thetaX": 90,
-                #"thetaY": 0,#180-pt[3],
-                #"thetaZ": 90
             }}}})
-        #rospy.loginfo("***** TASKS *****")
-        #rospy.loginfo(tasks)
-        #need to replace sequence_for_loop with a non-relative equivalent
         self.sequence_for_loop(tasks, False)
-        #FillCartesianWaypoint
 
     #1down =                                 = 0.11
     #base  = 0.22991076111793518            ~= 0.23
     #1up   = 0.2299+0.35-0.22991076111793518 = 0.35
 
+    # Function for cycling the height of the arm between 3 different positions
+    # does so by checking for the closest height, and then checking a lookup table
+    # for the height above or below
     def cycle_height(self, down=False):
         feedback = rospy.wait_for_message("/" + self.robot_name + "/base_feedback", BaseCyclic_Feedback)
-        #rospy.loginfo()
-        #rospy.loginfo(feedback.base)
         h = feedback.base.commanded_tool_pose_z
         #half way pts (x+0.6) 0.17, 0.29, 0.41
         possible_pts = [0.11, 0.23, 0.35, 0.47]
@@ -758,6 +782,7 @@ class Control:
 
         self.go_to_cart_pose(move_to)
 
+    # finds the closest index for the height lookup table in cycle_height()
     def getClosestHeightStage(self, h):
         stage = -1
         if (h <= 0.17):
@@ -769,36 +794,35 @@ class Control:
         else:
             stage = 2  # 3
         return stage
-            # Xbox button mapping
-            # 0==A, 1==B, 2==X, 3==Y
-            # 4==LB  5==RB
-            # stickBtnL== 9, STBR == 10
-            # Start Btn ==7 , select==6, Xbox==8
 
-            # axes:
-            # dpad X,Y == 6,7 (Y inverted)
-            # L stick X,Y ==0,1 (Y inverted)
-            # R stick X,Y ==3,4 (Y inverted)
-            # LT==2 , RT==5
-
-            # PS axes are same, some button diffs
-            # 2==Triangle, 3==square
-            # stick btns are 11 (L) and 12 (R)
-            # 8 9 10 =>share, options, ps btn
-            # 6,7 are triggers all the way down
-        # Future improvement: instead just track what the last button was and its count rather than an array
-        # this also means you can't get a double press by rocking back btw 2 btns
-        # or just have a mechanism to cancel if we switch btns, but for now this is good enough
-
-    #currently: B=pick/put/poke, A=circle/wrist, Y=Up/Down, X=Cancel
-    #can't take PS RT and LT, since jackal is turned on with those
-    #so why not B=pick/put/poke, Y=Up/Down, X=Cancel/Resume? A=ScrewL/R??
-    #then triggers full down (select/start on XBOX) are wrist/circle (ex > Left trigger >> Rot wrist left / go right then make ccw circle)
     wrist_vertical = False
-
     def check_wrist_vertical(self):
         feedback = rospy.wait_for_message("/" + self.robot_name + "/base_feedback", BaseCyclic_Feedback)
         return feedback.actuators[5].position < 45 or feedback.actuators[5].position > 315
+
+    """
+    The following is some code for handling controller inputs:
+    -double_pressed: Given a button index, this function calls one of the various functions
+        to move/control the arm based on the given button index, and the counter for if the button
+        was double pressed or not. 
+    -check_press: For a given button index and state, this function checks if a button was
+        pressed, and if so, increments a number of presses counter. If it is the first press
+        of a button, it starts a timer which when complete will call double_pressed
+    -handle_controller: Set in main as the callback of the /joy node, meaning it receives
+        the raw controller input data. At the moment, it just calls check_press for every
+        button in the input data 
+        
+    Main modifications that could be made are:
+        - The control scheme (change the actions of 'double_pressed()')
+        - Modify handle_controller handle the joystick axis, sending that data to a new function,
+            or treating axis values above a certain threshold as a button press
+    """
+
+    # can't take PS RT and LT, since jackal is turned on with those
+    #currently: B=pick/put/poke, A=Screw motion, Y=Up/Down, X=Cancel, left stick down=default/go to home
+    #2x select and 2x start= circular motions (different dirs), 1x select=rotate gripper
+    # (share on ps controller)
+
 
     btnPressCount = 0
     btnIndLastPressed = -1
@@ -809,26 +833,23 @@ class Control:
         rospy.loginfo(self.btnIndLastPressed)
         btnEscape = 8#data.buttons[8] #share on ps, xbox btn on xbox
         btnOptions = 9#data.buttons[9] #stbl on xbox
-        #TODO: does this actually stop any previous, interrupted, actions?
-        #self.stop_seq()
+
         self.send_stop_command()
         if self.btnPressCount > 1 and btnIndex == self.btnIndLastPressed:
             #rospy.loginfo("Double Pressed")
-            if btnIndex == 0:
+            #if btnIndex == 0:
                 #self.control_angle_vel() #test twisting
-                rospy.loginfo("Screw L")
+                #rospy.loginfo("Screw L")
                 #self.screw_motion(-45)
                 #self.send_joy_twist_command()
             if btnIndex == 1:
                 self.execute_sequence("Poke_cart")
                 #rospy.loginfo("Fix Elbow")
-                #self.fix_elbow()
                 grabbed = False
-            if btnIndex == 2:
+            #if btnIndex == 2:
                  #cancel the movement
                  #rospy.loginfo("Resume sequence")
-                 rospy.loginfo("Fix Elbow")
-                 #self.fix_elbow()
+                 #rospy.loginfo("Fix Elbow")
 
                  #self.stop_seq()
             if btnIndex == 3:
@@ -914,7 +935,8 @@ class Control:
     def handle_controller(self, data):
         for index, btn in enumerate(data.buttons):
             self.check_press(index, btn)
-        ax0 = data.axes[0]
+        #ax0 = data.axes[0]
+
 
     def main(self):
         # For testing purposes
@@ -932,37 +954,35 @@ class Control:
             # Activate the action notifications
             success &= self.example_subscribe_to_a_robot_notification()
 
+            #set the axis camera to a good default pan and tilt
             axis_cmd = Axis()
             axis_cmd.pan = 0.0
             axis_cmd.tilt = 5.0
             self.cmd.publish(axis_cmd)
 
             rospy.loginfo("go to home")
-
             self.example_home_the_robot()
             self.go_param_pose(0)
-
-            #feedback = rospy.wait_for_message("/" + self.robot_name + "/base_feedback", BaseCyclic_Feedback)
-            #rospy.loginfo(feedback.base)
 
             # Set the reference frame to "Mixed"
             success &= self.example_set_cartesian_reference_frame()
 
-
+            #open the gripper
             success &= self.example_send_gripper_command(0.0)
             self.gripper_closed = False
 
+            #set the gripper rotation
             rospy.loginfo("rotate wrist")
             self.rotate_wrist(90, abs_angle=True)
-            #self.rotate_wrist(180)
-            #feedback = rospy.wait_for_message("/" + self.robot_name + "/base_feedback", BaseCyclic_Feedback)
-            #rospy.loginfo(feedback.base)
 
+            #check whether we passed the use_joy parameter as true or false
             if rospy.get_param("/use_joy")==True:
+                #subscribe to the controller input and use it indefinitely
                 rospy.loginfo("Using Joystick Input")
                 rospy.Subscriber("/joy", Joy, self.handle_controller)
                 rospy.spin()
             else:
+                #if we dont have a controller, do a demo sequence
                 rospy.loginfo("Doing Demo Sequence")
                 #self.execute_sequence("Circle")
                 #self.execute_sequence("Screw Right") #almost perfect
@@ -975,13 +995,9 @@ class Control:
                 #self.grab_toggle()
                 #self.execute_sequence("Poke_cart")
 
-                #self.do_circle_smooth(-0.2, -1, offset=0)
                 self.do_circle(0.2)
-
                 feedback = rospy.wait_for_message("/" + self.robot_name + "/base_feedback", BaseCyclic_Feedback)
                 rospy.loginfo(feedback.base)
-
-
         if not success:
             rospy.logerr("The example encountered an error.")
 

@@ -6,12 +6,14 @@
     <arg name="use_joy" default="true"/>
     <arg name="joy_name" default="js2"/> <!--Some typical ones are js1, js2, ds4x (ps4 bluetooth)-->
 
+    <!-- load positions and sequences into rosparams -->
     <!-- positions -->
     <rosparam file="$(find pk_control)/src/positions/combined_poses.json" />
 
     <!-- sequences -->
     <rosparam file="$(find pk_control)/src/sequences/combined_seqs.json" />
 
+    <!-- if use_joy is true, set the current joystick for joy_node to be the joy_name parameter-->
     <group if="$(arg use_joy)">
         <param name="use_joy" value="true"/>
         <param name="joy_node/dev" value="$(eval '/dev/input/' + str(joy_name))"/>

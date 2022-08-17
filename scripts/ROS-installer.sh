@@ -26,3 +26,8 @@ rosdep update
 #sudo apt install python3-catkin-tools python3-osrf-pycommon
 
 source ~/.bashrc
+
+
+#install stuff for the camera viewer:
+sudo apt-get install python3-pil python3-pil.imagetk
+sudo apt-get install ros-noetic-axis-camera

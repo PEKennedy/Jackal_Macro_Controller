@@ -138,6 +138,9 @@ Turn the kinova arm on.
 Then, in a browser, go to 192.168.1.10 to see the webapp. Login is admin, (ask)
 The webapp allows you to control the arm, and record sequences.
 
+## Using the default Kinova arm controls
+Plug a controller into the micro-usb port, and turn the kinova arm on.
+
 ## Connecting to Jackal over SSH
 Follow the steps in the Jackal + unb007 manuals for setting up the ip of cpr-j100-0574.
 
@@ -212,6 +215,21 @@ what the robot can actually "see"/sense. Since it just reads ROS topics, it work
 and the real robot. A configuration for rviz is provided in this package, but is unused and 
 unneeded.
 
+## Some basic ROS commands
+ROS provides command line tools that are useful for debugging, here is a sample:
+For rostopics:
+- rostopic list >>> lists all available rostopics
+- rostopic info /cmd_vel >>> lists information about a certain topic
+- rostopic echo /cmd_vel >>> prints all data being sent to this topic
+- rostopic pub /cmd_vel '' >>> publishes data to this rostopic
+For rosparams:
+- rosparam list
+- rosparam get /run_id
+- rosparam set /my_param 'Hello'
+For rosservice:
+- rosservice list
+- rosservice info /rosout_get_loggers
+
 ## The network bug
 One of the persistently frustrating parts of development is a particular network bug at UNB.
 Symptoms are:
@@ -251,42 +269,128 @@ library I wasn't able to get working with the kinova gen3 lite.
 I have not used any of the C++ versions, nor the kortex api so have no comment on those methods.
 Aditya's experiment uses the kortex api, so that's a good starting point for reference.
 
-## Finding things in ros_kortex
+## Finding services in ros_kortex
+In the repo for ros_kortex (https://github.com/Kinovarobotics/ros_kortex)
+you will find example code under (https://github.com/Kinovarobotics/ros_kortex/tree/noetic-devel/kortex_examples/src/full_arm)
 
+By running 'rosservice list', you will get a list of rosservices that are available on the kinova
+arm. To call the service you need to have some code like this:
 
+    execute_action_full_name = '/path/to/service/like/the/rosservice/list'
+    rospy.wait_for_service(execute_action_full_name)
+    self.execute_action = rospy.ServiceProxy(execute_action_full_name, ExecuteAction)
+
+Notice the "ExecuteAction", as the second parameter of rospy.ServiceProxy. This is a data type
+for the rosservice to use. You can find the wanted data type using "rosservice info /path/..."
+
+Then, you go to this part of the repo:
+https://github.com/Kinovarobotics/ros_kortex/tree/noetic-devel/kortex_driver/srv/generated
+
+Here you will find the various definitions for these data types. Here's ExecuteAction.srv:
+    
+    Action input
+    ---
+    Empty output
+
+The action data type can be found under:
+https://github.com/Kinovarobotics/ros_kortex/tree/noetic-devel/kortex_driver/msg/generated
+
+Making the call to the ExecuteAction service involves calling self.execute_action (setup in the
+python above) using the correct datatype.
+
+    req = ExecuteActionRequest()
+    req.input = res.output
+    rospy.loginfo("Sending the robot home...")
+    try:
+        self.execute_action(req)
+
+But notice how in the actual code, instead of creating an ExecuteAction type, nor even an Action
+type, we instead created an ExecuteActionRequest type to send to self.execute_action()?
+
+Well, I don't really know why either, searching the ros_kortex repository only brings up example
+code, rather than a definition for the type: https://github.com/Kinovarobotics/ros_kortex/search?q=ExecuteActionRequest
+So I had trouble getting most new rosservice types I saw and wanted to use to work (I was only
+ever able to add the stop type). For the most part, I would try to create objects like 
+req = SendTwistJoystickCommandRequest(), only to either get an error that I wasn't creating the
+object correctly, or absolutely nothing (no movement, simulation or on the real robot).
+
+Here's some official documentation of rosservices: http://wiki.ros.org/rospy/Overview/Services
+
+If you ever are able to get extra rosservices working, then one improvement you could consider
+making is using the TwistJoystick to recreate the default control scheme for the kinova arm*, and/or
+use a velocity command to create a continuous smooth motion for the circular motion sequence
+in this project. Recreating the default control scheme means that you can control the arm remotely
+from the computer, rather than having a wired connection. It further means switching control schemes
+could be made much simpler (button press to switch, rather than stopping the control_kortex.py
+controls, then starting something else)
 
 ## installing ROS, ros_kortex
 
+See the .sh files in UNB_HCI/scripts, these bash scripts aren't tested, but should at least
+demonstrate most of the commands that need to be run for setup.
 
-
-## Difficulties in programming for the kinova arm
-
+See Starting a Ubuntu-ROS env.docx for some further steps, though the document does quickly just
+become notes.
 
 # The experiment and research
-## What is the goal/question asked? 
+## experiment outline
+The goal of the project is to see if a simplified robot control scheme (only some simple pre-planned
+movements) can perform better than a more complex one with more exact controls. The hope
+is that a user will be able to combine the provided actions in unique/creative ways to achieve
+complex goals.
 
+To do this, users will complete several tasks (ex. turning a crank, moving and rotating objects)
+using two different control schemes: 
+- the reference control scheme which is built into the kinova arm (users use the sticks to
+control the x+y+z axis velocity of the arm, and rotation)
+- Our simplified control scheme which has pre-planned actions built into the buttons (ex.
+circle button to grab, put back, and poke) 
 
+The tasks will be timed, have the number of mistakes recorded, and have user opinions recorded to
+provide an objective measure of how the two different control schemes compare.
 
-## The experiment rigs
+## The experiment rigs and tasks
+The following are the rigs I built/materials I gathered for the experiment:
+- Plastic bucket with foam blocks
+- Inverted bicycle with wooden handle
+- Open box with clamps (6x) and spare boards to form variable sized openings
+- Vertical board with 3x3 grid of circular holes
 
+The following were the initial ideas for tasks to do:
+- How long does it take for a user to pour the foam blocks out of the bucket
+- Can the user turn the crank 360 degrees when facing the crank from the front? from the side?
+- Have the user pick up blocks from one table and put them down on another at a different height
+- Have the user pick up a block, and rotate it to fit in a small opening presented by the open box.
+- Have the user enter a number combination on the 3x3 grid of holes (somewhat like entering a phone number) 
 
+The tasks were not picked with the new control scheme being able to do them in mind (that would be
+unfair to the reference), but as challenging tasks which requires a full use of the controls,
+and possibly inventing out-of-the-box solutions if the pre-planned actions are insufficient at
+face value.
 
-## REB and consent forms
+## REB approval and consent forms
+This project has obtained REB approval (REB 2022-113). Consent forms to hand out to participants
+are available?? TODO
 
-
-
-## outline of the experiment
-
-
+You will however, need to update the consent forms to reflect primary investigators and phone numbers.
 
 ## Things to research for the paper
+One part of writing a paper is the related work section. This section is used to show where
+in the field (HCI) this research is (ie. where and how does it relate to other research, what
+is the significance of it?). However, I wasn't able to find much that was very related to this
+project.
+TODO
+I found the following interesting:
+-x
+-y
+-z
 
+Perhaps the following are areas you could research:
+-x
+-y
+-z
 
-
-
-
-
-
+What has been done is a few abstract drafts, the rest is up to you.
 
 
 

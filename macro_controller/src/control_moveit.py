@@ -313,7 +313,7 @@ class ExampleMoveItTrajectories(object):
     #roscore
     #roslaunch kortex_gazebo spawn_kortex_robot.launch arm:=gen3_lite
     #rosparam set joy_node/dev "/dev/input/jsX(2), rosrun joy joy_node
-    #roslaunch pk_control control.launch
+    #roslaunch macro_controller control.launch
 
     def check_press(self, btnIndex, btnState):
         #rospy.loginfo("Do Check Press")

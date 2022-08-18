@@ -154,7 +154,7 @@ Follow the steps in the Jackal + unb007 manuals for setting up the ip of cpr-j10
 To connect to Jackal over SSH, you will need a computer with wifi, and a router setup in the HCI
 lab. Then in the terminal, run 'ssh administrator@cpr-j100-0574', password ... (ask).
 
-# In case no SSH connection can be established...
+## In case no SSH connection can be established...
 Bad news, but fixable.
 Bring the Jackal to a screen with HDMI input (such as the TV screen in the HCI lab)
 Open up Jackal
@@ -170,7 +170,7 @@ When you figure out the problem, make sure your solution persists, and put the n
 When this problem was encountered before, our solution was to just accept all network traffic,
 hopefully a better solution exists.
 
-# In case no bluetooth connection can be made...
+## In case no bluetooth connection can be made...
 Check bluetoothctl, what devices are available?
 Find your device's MAC address, and make sure it is set to trusted, and try connecting to it
 from Jackal's end.
@@ -422,7 +422,7 @@ to reach the orientation of the gripper, and shorten the distance bounds based o
 
 ## REB approval and consent forms
 This project has obtained REB approval (REB 2022-113). Consent forms to hand out to participants
-are available?? TODO
+are available in the HRI lab folder on teams.
 
 You will however, need to update the consent forms to reflect primary investigators and phone numbers.
 
@@ -431,16 +431,11 @@ One part of writing a paper is the related work section. This section is used to
 in the field (HCI) this research is (ie. where and how does it relate to other research, what
 is the significance of it?). However, I wasn't able to find much that was very related to this
 project.
-TODO
-I found the following interesting:
--x
--y
--z
 
-Perhaps the following are areas you could research:
--x
--y
--z
+In paper_summaries.docx, you will find a few summaries, and some links to papers and search queries.
+Some of them may be good starting points to find related work.
+
+
 
 What has been done is a few abstract drafts, the rest is up to you.
 

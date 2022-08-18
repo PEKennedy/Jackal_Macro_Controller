@@ -1,0 +1,768 @@
+x@x-VirtualBox:~/catkin_ws/src/UNB_HCI$ rosservice list
+/gazebo/apply_body_wrench
+/gazebo/apply_joint_effort
+/gazebo/clear_body_wrenches
+/gazebo/clear_joint_forces
+/gazebo/delete_light
+/gazebo/delete_model
+/gazebo/get_joint_properties
+/gazebo/get_light_properties
+/gazebo/get_link_properties
+/gazebo/get_link_state
+/gazebo/get_loggers
+/gazebo/get_model_properties
+/gazebo/get_model_state
+/gazebo/get_physics_properties
+/gazebo/get_world_properties
+/gazebo/pause_physics
+/gazebo/reset_simulation
+/gazebo/reset_world
+/gazebo/set_joint_properties
+/gazebo/set_light_properties
+/gazebo/set_link_properties
+/gazebo/set_link_state
+/gazebo/set_logger_level
+/gazebo/set_model_configuration
+/gazebo/set_model_state
+/gazebo/set_parameters
+/gazebo/set_physics_properties
+/gazebo/spawn_sdf_model
+/gazebo/spawn_urdf_model
+/gazebo/unpause_physics
+/gazebo_gui/get_loggers
+/gazebo_gui/set_logger_level
+/my_gen3_lite/actuator_config/clear_faults
+/my_gen3_lite/actuator_config/get_activated_control_loop
+/my_gen3_lite/actuator_config/get_axis_offsets
+/my_gen3_lite/actuator_config/get_cogging_feedforward_mode
+/my_gen3_lite/actuator_config/get_command_mode
+/my_gen3_lite/actuator_config/get_control_loop_parameters
+/my_gen3_lite/actuator_config/get_control_mode
+/my_gen3_lite/actuator_config/get_selected_custom_data
+/my_gen3_lite/actuator_config/get_servoing
+/my_gen3_lite/actuator_config/get_torque_offset
+/my_gen3_lite/actuator_config/move_to_position
+/my_gen3_lite/actuator_config/select_custom_data
+/my_gen3_lite/actuator_config/set_activated_control_loop
+/my_gen3_lite/actuator_config/set_api_options
+/my_gen3_lite/actuator_config/set_axis_offsets
+/my_gen3_lite/actuator_config/set_cogging_feedforward_mode
+/my_gen3_lite/actuator_config/set_command_mode
+/my_gen3_lite/actuator_config/set_control_loop_parameters
+/my_gen3_lite/actuator_config/set_control_mode
+/my_gen3_lite/actuator_config/set_device_id
+/my_gen3_lite/actuator_config/set_servoing
+/my_gen3_lite/actuator_config/set_torque_offset
+/my_gen3_lite/apply_planning_scene
+/my_gen3_lite/base/activate_map
+/my_gen3_lite/base/activate_publishing_of_action_topic
+/my_gen3_lite/base/activate_publishing_of_arm_state_topic
+/my_gen3_lite/base/activate_publishing_of_configuration_change_topic
+/my_gen3_lite/base/activate_publishing_of_control_mode_topic
+/my_gen3_lite/base/activate_publishing_of_controller_topic
+/my_gen3_lite/base/activate_publishing_of_factory_topic
+/my_gen3_lite/base/activate_publishing_of_mapping_info_topic
+/my_gen3_lite/base/activate_publishing_of_network_topic
+/my_gen3_lite/base/activate_publishing_of_operating_mode_topic
+/my_gen3_lite/base/activate_publishing_of_protection_zone_topic
+/my_gen3_lite/base/activate_publishing_of_robot_event_topic
+/my_gen3_lite/base/activate_publishing_of_sequence_info_topic
+/my_gen3_lite/base/activate_publishing_of_servoing_mode_topic
+/my_gen3_lite/base/activate_publishing_of_user_topic
+/my_gen3_lite/base/add_sequence_tasks
+/my_gen3_lite/base/add_wifi_configuration
+/my_gen3_lite/base/apply_emergency_stop
+/my_gen3_lite/base/change_password
+/my_gen3_lite/base/clear_faults
+/my_gen3_lite/base/compute_forward_kinematics
+/my_gen3_lite/base/compute_inverse_kinematics
+/my_gen3_lite/base/connect_wifi
+/my_gen3_lite/base/create_action
+/my_gen3_lite/base/create_map
+/my_gen3_lite/base/create_mapping
+/my_gen3_lite/base/create_protection_zone
+/my_gen3_lite/base/create_sequence
+/my_gen3_lite/base/create_user_profile
+/my_gen3_lite/base/delete_action
+/my_gen3_lite/base/delete_all_sequence_tasks
+/my_gen3_lite/base/delete_map
+/my_gen3_lite/base/delete_mapping
+/my_gen3_lite/base/delete_protection_zone
+/my_gen3_lite/base/delete_sequence
+/my_gen3_lite/base/delete_sequence_task
+/my_gen3_lite/base/delete_user_profile
+/my_gen3_lite/base/delete_wifi_configuration
+/my_gen3_lite/base/disable_bridge
+/my_gen3_lite/base/disconnect_wifi
+/my_gen3_lite/base/duplicate_map
+/my_gen3_lite/base/duplicate_mapping
+/my_gen3_lite/base/enable_bridge
+/my_gen3_lite/base/execute_action
+/my_gen3_lite/base/execute_action_from_reference
+/my_gen3_lite/base/execute_waypoint_trajectory
+/my_gen3_lite/base/get_actuator_count
+/my_gen3_lite/base/get_all_configured_wifis
+/my_gen3_lite/base/get_all_connected_controllers
+/my_gen3_lite/base/get_all_controller_configurations
+/my_gen3_lite/base/get_all_joints_speed_hard_limitation
+/my_gen3_lite/base/get_all_joints_speed_soft_limitation
+/my_gen3_lite/base/get_all_joints_torque_hard_limitation
+/my_gen3_lite/base/get_all_joints_torque_soft_limitation
+/my_gen3_lite/base/get_arm_state
+/my_gen3_lite/base/get_available_wifi
+/my_gen3_lite/base/get_bridge_config
+/my_gen3_lite/base/get_bridge_list
+/my_gen3_lite/base/get_cap_sense_config
+/my_gen3_lite/base/get_configured_wifi
+/my_gen3_lite/base/get_connected_wifi_information
+/my_gen3_lite/base/get_control_mode
+/my_gen3_lite/base/get_controller_configuration
+/my_gen3_lite/base/get_controller_configuration_mode
+/my_gen3_lite/base/get_controller_state
+/my_gen3_lite/base/get_firmware_bundle_versions
+/my_gen3_lite/base/get_i_pv4_configuration
+/my_gen3_lite/base/get_i_pv4_information
+/my_gen3_lite/base/get_measured_cartesian_pose
+/my_gen3_lite/base/get_measured_gripper_movement
+/my_gen3_lite/base/get_measured_joint_angles
+/my_gen3_lite/base/get_operating_mode
+/my_gen3_lite/base/get_product_configuration
+/my_gen3_lite/base/get_servoing_mode
+/my_gen3_lite/base/get_trajectory_error_report
+/my_gen3_lite/base/get_twist_hard_limitation
+/my_gen3_lite/base/get_twist_soft_limitation
+/my_gen3_lite/base/get_wifi_country_code
+/my_gen3_lite/base/get_wifi_information
+/my_gen3_lite/base/get_wrench_hard_limitation
+/my_gen3_lite/base/get_wrench_soft_limitation
+/my_gen3_lite/base/is_communication_interface_enable
+/my_gen3_lite/base/move_sequence_task
+/my_gen3_lite/base/pause_action
+/my_gen3_lite/base/pause_sequence
+/my_gen3_lite/base/play_advanced_sequence
+/my_gen3_lite/base/play_cartesian_trajectory
+/my_gen3_lite/base/play_cartesian_trajectory_orientation
+/my_gen3_lite/base/play_cartesian_trajectory_position
+/my_gen3_lite/base/play_joint_trajectory
+/my_gen3_lite/base/play_pre_computed_joint_trajectory
+/my_gen3_lite/base/play_selected_joint_trajectory
+/my_gen3_lite/base/play_sequence
+/my_gen3_lite/base/read_action
+/my_gen3_lite/base/read_all_actions
+/my_gen3_lite/base/read_all_mappings
+/my_gen3_lite/base/read_all_maps
+/my_gen3_lite/base/read_all_protection_zones
+/my_gen3_lite/base/read_all_sequence_tasks
+/my_gen3_lite/base/read_all_sequences
+/my_gen3_lite/base/read_all_user_profiles
+/my_gen3_lite/base/read_all_users
+/my_gen3_lite/base/read_map
+/my_gen3_lite/base/read_mapping
+/my_gen3_lite/base/read_protection_zone
+/my_gen3_lite/base/read_sequence
+/my_gen3_lite/base/read_sequence_task
+/my_gen3_lite/base/read_user_profile
+/my_gen3_lite/base/restore_factory_product_configuration
+/my_gen3_lite/base/restore_factory_settings
+/my_gen3_lite/base/resume_action
+/my_gen3_lite/base/resume_sequence
+/my_gen3_lite/base/send_gripper_command
+/my_gen3_lite/base/send_joint_speeds_command
+/my_gen3_lite/base/send_joint_speeds_joystick_command
+/my_gen3_lite/base/send_selected_joint_speed_command
+/my_gen3_lite/base/send_selected_joint_speed_joystick_command
+/my_gen3_lite/base/send_twist_command
+/my_gen3_lite/base/send_twist_joystick_command
+/my_gen3_lite/base/send_wrench_command
+/my_gen3_lite/base/send_wrench_joystick_command
+/my_gen3_lite/base/set_admittance
+/my_gen3_lite/base/set_api_options
+/my_gen3_lite/base/set_cap_sense_config
+/my_gen3_lite/base/set_communication_interface_enable
+/my_gen3_lite/base/set_controller_configuration
+/my_gen3_lite/base/set_controller_configuration_mode
+/my_gen3_lite/base/set_device_id
+/my_gen3_lite/base/set_i_pv4_configuration
+/my_gen3_lite/base/set_operating_mode
+/my_gen3_lite/base/set_servoing_mode
+/my_gen3_lite/base/set_wifi_country_code
+/my_gen3_lite/base/start_teaching
+/my_gen3_lite/base/start_wifi_scan
+/my_gen3_lite/base/stop
+/my_gen3_lite/base/stop_action
+/my_gen3_lite/base/stop_sequence
+/my_gen3_lite/base/stop_teaching
+/my_gen3_lite/base/swap_sequence_tasks
+/my_gen3_lite/base/take_snapshot
+/my_gen3_lite/base/unsubscribe
+/my_gen3_lite/base/update_action
+/my_gen3_lite/base/update_end_effector_type_configuration
+/my_gen3_lite/base/update_map
+/my_gen3_lite/base/update_mapping
+/my_gen3_lite/base/update_protection_zone
+/my_gen3_lite/base/update_sequence
+/my_gen3_lite/base/update_sequence_task
+/my_gen3_lite/base/update_user_profile
+/my_gen3_lite/base/validate_waypoint_list
+/my_gen3_lite/check_state_validity
+/my_gen3_lite/clear_octomap
+/my_gen3_lite/compute_cartesian_path
+/my_gen3_lite/compute_fk
+/my_gen3_lite/compute_ik
+/my_gen3_lite/control_config/activate_publishing_of_control_configuration_topic
+/my_gen3_lite/control_config/activate_publishing_of_control_mode_topic
+/my_gen3_lite/control_config/get_all_kinematic_soft_limits
+/my_gen3_lite/control_config/get_cartesian_reference_frame
+/my_gen3_lite/control_config/get_control_mode
+/my_gen3_lite/control_config/get_desired_speeds
+/my_gen3_lite/control_config/get_gravity_vector
+/my_gen3_lite/control_config/get_kinematic_hard_limits
+/my_gen3_lite/control_config/get_kinematic_soft_limits
+/my_gen3_lite/control_config/get_payload_information
+/my_gen3_lite/control_config/get_tool_configuration
+/my_gen3_lite/control_config/reset_gravity_vector
+/my_gen3_lite/control_config/reset_joint_acceleration_soft_limits
+/my_gen3_lite/control_config/reset_joint_speed_soft_limits
+/my_gen3_lite/control_config/reset_payload_information
+/my_gen3_lite/control_config/reset_tool_configuration
+/my_gen3_lite/control_config/reset_twist_angular_soft_limit
+/my_gen3_lite/control_config/reset_twist_linear_soft_limit
+/my_gen3_lite/control_config/set_api_options
+/my_gen3_lite/control_config/set_cartesian_reference_frame
+/my_gen3_lite/control_config/set_desired_angular_twist
+/my_gen3_lite/control_config/set_desired_joint_speeds
+/my_gen3_lite/control_config/set_desired_linear_twist
+/my_gen3_lite/control_config/set_device_id
+/my_gen3_lite/control_config/set_gravity_vector
+/my_gen3_lite/control_config/set_joint_acceleration_soft_limits
+/my_gen3_lite/control_config/set_joint_speed_soft_limits
+/my_gen3_lite/control_config/set_payload_information
+/my_gen3_lite/control_config/set_tool_configuration
+/my_gen3_lite/control_config/set_twist_angular_soft_limit
+/my_gen3_lite/control_config/set_twist_linear_soft_limit
+/my_gen3_lite/control_config/unsubscribe
+/my_gen3_lite/controller_manager/list_controller_types
+/my_gen3_lite/controller_manager/list_controllers
+/my_gen3_lite/controller_manager/load_controller
+/my_gen3_lite/controller_manager/reload_controller_libraries
+/my_gen3_lite/controller_manager/switch_controller
+/my_gen3_lite/controller_manager/unload_controller
+/my_gen3_lite/device_config/activate_publishing_of_safety_topic
+/my_gen3_lite/device_config/clear_all_safety_status
+/my_gen3_lite/device_config/clear_safety_status
+/my_gen3_lite/device_config/execute_calibration
+/my_gen3_lite/device_config/get_all_safety_configuration
+/my_gen3_lite/device_config/get_all_safety_information
+/my_gen3_lite/device_config/get_bootloader_version
+/my_gen3_lite/device_config/get_calibration_result
+/my_gen3_lite/device_config/get_cap_sense_config
+/my_gen3_lite/device_config/get_device_type
+/my_gen3_lite/device_config/get_firmware_version
+/my_gen3_lite/device_config/get_i_pv4_settings
+/my_gen3_lite/device_config/get_m_a_c_address
+/my_gen3_lite/device_config/get_model_number
+/my_gen3_lite/device_config/get_part_number
+/my_gen3_lite/device_config/get_part_number_revision
+/my_gen3_lite/device_config/get_run_mode
+/my_gen3_lite/device_config/get_safety_configuration
+/my_gen3_lite/device_config/get_safety_enable
+/my_gen3_lite/device_config/get_safety_information
+/my_gen3_lite/device_config/get_safety_status
+/my_gen3_lite/device_config/get_serial_number
+/my_gen3_lite/device_config/reboot_request
+/my_gen3_lite/device_config/reset_safety_defaults
+/my_gen3_lite/device_config/set_api_options
+/my_gen3_lite/device_config/set_cap_sense_config
+/my_gen3_lite/device_config/set_device_id
+/my_gen3_lite/device_config/set_i_pv4_settings
+/my_gen3_lite/device_config/set_run_mode
+/my_gen3_lite/device_config/set_safety_configuration
+/my_gen3_lite/device_config/set_safety_enable
+/my_gen3_lite/device_config/set_safety_error_threshold
+/my_gen3_lite/device_config/set_safety_warning_threshold
+/my_gen3_lite/device_config/stop_calibration
+/my_gen3_lite/device_manager/read_all_devices
+/my_gen3_lite/device_manager/set_api_options
+/my_gen3_lite/device_manager/set_device_id
+/my_gen3_lite/gazebo_ros_control/pid_gains/left_finger_bottom_joint/set_parameters
+/my_gen3_lite/gazebo_ros_control/pid_gains/left_finger_tip_joint/set_parameters
+/my_gen3_lite/gazebo_ros_control/pid_gains/right_finger_bottom_joint/set_parameters
+/my_gen3_lite/gazebo_ros_control/pid_gains/right_finger_tip_joint/set_parameters
+/my_gen3_lite/gen3_lite_controller_spawner/get_loggers
+/my_gen3_lite/gen3_lite_controller_spawner/set_logger_level
+/my_gen3_lite/gen3_lite_joint_trajectory_controller/gains/joint_1/set_parameters
+/my_gen3_lite/gen3_lite_joint_trajectory_controller/gains/joint_2/set_parameters
+/my_gen3_lite/gen3_lite_joint_trajectory_controller/gains/joint_3/set_parameters
+/my_gen3_lite/gen3_lite_joint_trajectory_controller/gains/joint_4/set_parameters
+/my_gen3_lite/gen3_lite_joint_trajectory_controller/gains/joint_5/set_parameters
+/my_gen3_lite/gen3_lite_joint_trajectory_controller/gains/joint_6/set_parameters
+/my_gen3_lite/gen3_lite_joint_trajectory_controller/query_state
+/my_gen3_lite/gen3_lite_position_controllers_spawner/get_loggers
+/my_gen3_lite/gen3_lite_position_controllers_spawner/set_logger_level
+/my_gen3_lite/get_planner_params
+/my_gen3_lite/get_planning_scene
+/my_gen3_lite/joint_1_position_controller/pid/set_parameters
+/my_gen3_lite/joint_2_position_controller/pid/set_parameters
+/my_gen3_lite/joint_3_position_controller/pid/set_parameters
+/my_gen3_lite/joint_4_position_controller/pid/set_parameters
+/my_gen3_lite/joint_5_position_controller/pid/set_parameters
+/my_gen3_lite/joint_6_position_controller/pid/set_parameters
+/my_gen3_lite/move_group/get_loggers
+/my_gen3_lite/move_group/load_map
+/my_gen3_lite/move_group/ompl/set_parameters
+/my_gen3_lite/move_group/plan_execution/set_parameters
+/my_gen3_lite/move_group/planning_scene_monitor/set_parameters
+/my_gen3_lite/move_group/save_map
+/my_gen3_lite/move_group/sense_for_plan/set_parameters
+/my_gen3_lite/move_group/set_logger_level
+/my_gen3_lite/move_group/trajectory_execution/set_parameters
+/my_gen3_lite/my_gen3_lite_driver/get_loggers
+/my_gen3_lite/my_gen3_lite_driver/set_logger_level
+/my_gen3_lite/plan_kinematic_path
+/my_gen3_lite/query_planner_interface
+/my_gen3_lite/robot_state_publisher/get_loggers
+/my_gen3_lite/robot_state_publisher/set_logger_level
+/my_gen3_lite/set_planner_params
+/rosout/get_loggers
+/rosout/set_logger_level
+
+x@x-VirtualBox:~/catkin_ws/src/UNB_HCI$ rostopic list
+/clock
+/gazebo/link_states
+/gazebo/model_states
+/gazebo/parameter_descriptions
+/gazebo/parameter_updates
+/gazebo/performance_metrics
+/gazebo/set_link_state
+/gazebo/set_model_state
+/my_gen3_lite/action_topic
+/my_gen3_lite/arm_state_topic
+/my_gen3_lite/attached_collision_object
+/my_gen3_lite/base_feedback
+/my_gen3_lite/base_feedback/joint_state
+/my_gen3_lite/collision_object
+/my_gen3_lite/configuration_change_topic
+/my_gen3_lite/control_configuration_topic
+/my_gen3_lite/control_mode_topic
+/my_gen3_lite/controller_topic
+/my_gen3_lite/execute_trajectory/cancel
+/my_gen3_lite/execute_trajectory/feedback
+/my_gen3_lite/execute_trajectory/goal
+/my_gen3_lite/execute_trajectory/result
+/my_gen3_lite/execute_trajectory/status
+/my_gen3_lite/factory_topic
+/my_gen3_lite/gazebo_ros_control/pid_gains/left_finger_bottom_joint/parameter_descriptions
+/my_gen3_lite/gazebo_ros_control/pid_gains/left_finger_bottom_joint/parameter_updates
+/my_gen3_lite/gazebo_ros_control/pid_gains/left_finger_tip_joint/parameter_descriptions
+/my_gen3_lite/gazebo_ros_control/pid_gains/left_finger_tip_joint/parameter_updates
+/my_gen3_lite/gazebo_ros_control/pid_gains/right_finger_bottom_joint/parameter_descriptions
+/my_gen3_lite/gazebo_ros_control/pid_gains/right_finger_bottom_joint/parameter_updates
+/my_gen3_lite/gazebo_ros_control/pid_gains/right_finger_tip_joint/parameter_descriptions
+/my_gen3_lite/gazebo_ros_control/pid_gains/right_finger_tip_joint/parameter_updates
+/my_gen3_lite/gen3_lite_2f_gripper_controller/gripper_cmd/cancel
+/my_gen3_lite/gen3_lite_2f_gripper_controller/gripper_cmd/feedback
+/my_gen3_lite/gen3_lite_2f_gripper_controller/gripper_cmd/goal
+/my_gen3_lite/gen3_lite_2f_gripper_controller/gripper_cmd/result
+/my_gen3_lite/gen3_lite_2f_gripper_controller/gripper_cmd/status
+/my_gen3_lite/gen3_lite_joint_trajectory_controller/command
+/my_gen3_lite/gen3_lite_joint_trajectory_controller/follow_joint_trajectory/cancel
+/my_gen3_lite/gen3_lite_joint_trajectory_controller/follow_joint_trajectory/feedback
+/my_gen3_lite/gen3_lite_joint_trajectory_controller/follow_joint_trajectory/goal
+/my_gen3_lite/gen3_lite_joint_trajectory_controller/follow_joint_trajectory/result
+/my_gen3_lite/gen3_lite_joint_trajectory_controller/follow_joint_trajectory/status
+/my_gen3_lite/gen3_lite_joint_trajectory_controller/gains/joint_1/parameter_descriptions
+/my_gen3_lite/gen3_lite_joint_trajectory_controller/gains/joint_1/parameter_updates
+/my_gen3_lite/gen3_lite_joint_trajectory_controller/gains/joint_2/parameter_descriptions
+/my_gen3_lite/gen3_lite_joint_trajectory_controller/gains/joint_2/parameter_updates
+/my_gen3_lite/gen3_lite_joint_trajectory_controller/gains/joint_3/parameter_descriptions
+/my_gen3_lite/gen3_lite_joint_trajectory_controller/gains/joint_3/parameter_updates
+/my_gen3_lite/gen3_lite_joint_trajectory_controller/gains/joint_4/parameter_descriptions
+/my_gen3_lite/gen3_lite_joint_trajectory_controller/gains/joint_4/parameter_updates
+/my_gen3_lite/gen3_lite_joint_trajectory_controller/gains/joint_5/parameter_descriptions
+/my_gen3_lite/gen3_lite_joint_trajectory_controller/gains/joint_5/parameter_updates
+/my_gen3_lite/gen3_lite_joint_trajectory_controller/gains/joint_6/parameter_descriptions
+/my_gen3_lite/gen3_lite_joint_trajectory_controller/gains/joint_6/parameter_updates
+/my_gen3_lite/gen3_lite_joint_trajectory_controller/state
+/my_gen3_lite/in/cartesian_velocity
+/my_gen3_lite/in/clear_faults
+/my_gen3_lite/in/emergency_stop
+/my_gen3_lite/in/joint_velocity
+/my_gen3_lite/in/stop
+/my_gen3_lite/joint_1_position_controller/command
+/my_gen3_lite/joint_1_position_controller/pid/parameter_descriptions
+/my_gen3_lite/joint_1_position_controller/pid/parameter_updates
+/my_gen3_lite/joint_1_position_controller/state
+/my_gen3_lite/joint_2_position_controller/command
+/my_gen3_lite/joint_2_position_controller/pid/parameter_descriptions
+/my_gen3_lite/joint_2_position_controller/pid/parameter_updates
+/my_gen3_lite/joint_2_position_controller/state
+/my_gen3_lite/joint_3_position_controller/command
+/my_gen3_lite/joint_3_position_controller/pid/parameter_descriptions
+/my_gen3_lite/joint_3_position_controller/pid/parameter_updates
+/my_gen3_lite/joint_3_position_controller/state
+/my_gen3_lite/joint_4_position_controller/command
+/my_gen3_lite/joint_4_position_controller/pid/parameter_descriptions
+/my_gen3_lite/joint_4_position_controller/pid/parameter_updates
+/my_gen3_lite/joint_4_position_controller/state
+/my_gen3_lite/joint_5_position_controller/command
+/my_gen3_lite/joint_5_position_controller/pid/parameter_descriptions
+/my_gen3_lite/joint_5_position_controller/pid/parameter_updates
+/my_gen3_lite/joint_5_position_controller/state
+/my_gen3_lite/joint_6_position_controller/command
+/my_gen3_lite/joint_6_position_controller/pid/parameter_descriptions
+/my_gen3_lite/joint_6_position_controller/pid/parameter_updates
+/my_gen3_lite/joint_6_position_controller/state
+/my_gen3_lite/joint_states
+/my_gen3_lite/kortex_error
+/my_gen3_lite/mapping_info_topic
+/my_gen3_lite/move_group/cancel
+/my_gen3_lite/move_group/display_contacts
+/my_gen3_lite/move_group/display_planned_path
+/my_gen3_lite/move_group/feedback
+/my_gen3_lite/move_group/goal
+/my_gen3_lite/move_group/monitored_planning_scene
+/my_gen3_lite/move_group/ompl/parameter_descriptions
+/my_gen3_lite/move_group/ompl/parameter_updates
+/my_gen3_lite/move_group/plan_execution/parameter_descriptions
+/my_gen3_lite/move_group/plan_execution/parameter_updates
+/my_gen3_lite/move_group/planning_scene_monitor/parameter_descriptions
+/my_gen3_lite/move_group/planning_scene_monitor/parameter_updates
+/my_gen3_lite/move_group/result
+/my_gen3_lite/move_group/sense_for_plan/parameter_descriptions
+/my_gen3_lite/move_group/sense_for_plan/parameter_updates
+/my_gen3_lite/move_group/status
+/my_gen3_lite/move_group/trajectory_execution/parameter_descriptions
+/my_gen3_lite/move_group/trajectory_execution/parameter_updates
+/my_gen3_lite/network_topic
+/my_gen3_lite/operating_mode_topic
+/my_gen3_lite/pickup/cancel
+/my_gen3_lite/pickup/feedback
+/my_gen3_lite/pickup/goal
+/my_gen3_lite/pickup/result
+/my_gen3_lite/pickup/status
+/my_gen3_lite/place/cancel
+/my_gen3_lite/place/feedback
+/my_gen3_lite/place/goal
+/my_gen3_lite/place/result
+/my_gen3_lite/place/status
+/my_gen3_lite/planning_scene
+/my_gen3_lite/planning_scene_world
+/my_gen3_lite/protection_zone_topic
+/my_gen3_lite/robot_event_topic
+/my_gen3_lite/safety_topic
+/my_gen3_lite/sequence_info_topic
+/my_gen3_lite/servoing_mode_topic
+/my_gen3_lite/trajectory_execution_event
+/my_gen3_lite/user_topic
+/rosout
+/rosout_agg
+/tf
+/tf_static
+
+kortex_driver.msg:
+['Action', 'ActionEvent', 'ActionExecutionState', 'ActionHandle', 'ActionList', 'ActionNotification',
+ 'ActionNotificationList', 'ActionType', 'Action_action_parameters', 'ActivateMapHandle', 'ActuatorCommand',
+ 'ActuatorConfig_ControlMode', 'ActuatorConfig_ControlModeInformation', 'ActuatorConfig_SafetyLimitType',
+ 'ActuatorConfig_ServiceVersion', 'ActuatorCustomData', 'ActuatorCyclic_Command', 'ActuatorCyclic_CustomData',
+ 'ActuatorCyclic_Feedback', 'ActuatorCyclic_MessageId', 'ActuatorCyclic_ServiceVersion', 'ActuatorFeedback',
+ 'ActuatorInformation', 'Admittance', 'AdmittanceMode', 'AdvancedSequenceHandle', 'AngularTwist', 'AngularWaypoint',
+ 'ApiOptions', 'AppendActionInformation', 'ArmLaterality', 'ArmState', 'ArmStateInformation', 'ArmStateNotification',
+ 'AxisOffsets', 'AxisPosition', 'BackupEvent', 'BaseCyclic_Command', 'BaseCyclic_CustomData', 'BaseCyclic_Feedback',
+ 'BaseCyclic_ServiceVersion', 'BaseFeedback', 'BaseType', 'Base_CapSenseConfig', 'Base_CapSenseMode', 'Base_ControlMode',
+ 'Base_ControlModeInformation', 'Base_ControlModeNotification', 'Base_GpioConfiguration', 'Base_JointSpeeds',
+ 'Base_Position', 'Base_RotationMatrix', 'Base_RotationMatrixRow', 'Base_SafetyIdentifier', 'Base_ServiceVersion',
+ 'Base_Stop', 'BitRate', 'BootloaderVersion', 'BridgeConfig', 'BridgeIdentifier', 'BridgeList', 'BridgePortConfig',
+ 'BridgeResult', 'BridgeStatus', 'BridgeType', 'Calibration', 'CalibrationElement', 'CalibrationItem',
+ 'CalibrationParameter', 'CalibrationParameter_value', 'CalibrationResult', 'CalibrationStatus', 'CapSenseRegister',
+ 'CartesianLimitation', 'CartesianLimitationList', 'CartesianReferenceFrame', 'CartesianReferenceFrameInfo',
+ 'CartesianSpeed', 'CartesianTrajectoryConstraint', 'CartesianTrajectoryConstraint_type', 'CartesianTransform',
+ 'CartesianWaypoint', 'ChangeJointSpeeds', 'ChangeTwist', 'ChangeWrench', 'CoggingFeedforwardMode',
+ 'CoggingFeedforwardModeInformation', 'CommandFlags', 'CommandMode', 'CommandModeInformation',
+ 'CommunicationInterfaceConfiguration', 'CompleteProductConfiguration', 'ConfigurationChangeNotification',
+ 'ConfigurationChangeNotificationList', 'ConfigurationChangeNotification_configuration_change',
+ 'ConfigurationNotificationEvent', 'Connection', 'ConstrainedJointAngle', 'ConstrainedJointAngles',
+ 'ConstrainedOrientation', 'ConstrainedPose', 'ConstrainedPosition', 'ControlConfig_ControlMode',
+ 'ControlConfig_ControlModeInformation', 'ControlConfig_ControlModeNotification', 'ControlConfig_JointSpeeds',
+ 'ControlConfig_Position', 'ControlConfig_ServiceVersion', 'ControlConfigurationEvent', 'ControlConfigurationNotification',
+ 'ControlLoop', 'ControlLoopParameters', 'ControlLoopSelection', 'ControlModeNotificationList', 'ControllerBehavior',
+ 'ControllerConfiguration', 'ControllerConfigurationList', 'ControllerConfigurationMode', 'ControllerElementEventType',
+ 'ControllerElementHandle', 'ControllerElementHandle_identifier', 'ControllerElementState', 'ControllerEvent',
+ 'ControllerEventType', 'ControllerHandle', 'ControllerInputType', 'ControllerList', 'ControllerNotification',
+ 'ControllerNotificationList', 'ControllerNotification_state', 'ControllerState', 'ControllerType', 'CountryCode',
+ 'CountryCodeIdentifier', 'CustomDataIndex', 'CustomDataSelection', 'CustomDataUnit', 'Delay', 'DesiredSpeeds',
+ 'DeviceConfig_CapSenseConfig', 'DeviceConfig_CapSenseMode', 'DeviceConfig_SafetyLimitType', 'DeviceConfig_ServiceVersion',
+ 'DeviceHandle', 'DeviceHandles', 'DeviceManager_ServiceVersion', 'DeviceType', 'DeviceTypes', 'DistortionCoefficients',
+ 'EmergencyStop', 'Empty', 'EncoderDerivativeParameters', 'EndEffectorType', 'ErrorCodes', 'EthernetConfiguration',
+ 'EthernetDevice', 'EthernetDeviceIdentification', 'EthernetDuplex', 'EthernetSpeed', 'EventIdSequenceInfoNotification',
+ 'ExtrinsicParameters', 'FactoryEvent', 'FactoryNotification', 'Faults', 'Finger', 'FirmwareBundleVersions',
+ 'FirmwareComponentVersion', 'FirmwareVersion', 'FocusAction', 'FocusPoint', 'FollowCartesianTrajectoryAction',
+ 'FollowCartesianTrajectoryActionFeedback', 'FollowCartesianTrajectoryActionGoal', 'FollowCartesianTrajectoryActionResult',
+ 'FollowCartesianTrajectoryFeedback', 'FollowCartesianTrajectoryGoal', 'FollowCartesianTrajectoryResult', 'FrameRate',
+ 'FrequencyResponse', 'FullIPv4Configuration', 'FullUserProfile', 'GPIOIdentification', 'GPIOIdentifier', 'GPIOMode',
+ 'GPIOPull', 'GPIOState', 'GPIOValue', 'Gen3GpioPinId', 'GpioAction', 'GpioBehavior', 'GpioCommand',
+ 'GpioConfigurationList', 'GpioEvent', 'GpioPinConfiguration', 'GpioPinPropertyFlags', 'GravityVector', 'Gripper',
+ 'GripperCommand', 'GripperConfig_SafetyIdentifier', 'GripperCyclic_Command', 'GripperCyclic_CustomData',
+ 'GripperCyclic_Feedback', 'GripperCyclic_MessageId', 'GripperCyclic_ServiceVersion', 'GripperMode', 'GripperRequest',
+ 'I2CConfiguration', 'I2CData', 'I2CDevice', 'I2CDeviceAddressing', 'I2CDeviceIdentification', 'I2CMode',
+ 'I2CReadParameter', 'I2CReadRegisterParameter', 'I2CRegisterAddressSize', 'I2CWriteParameter', 'I2CWriteRegisterParameter',
+ 'IKData', 'IPv4Configuration', 'IPv4Information', 'IPv4Settings', 'InterconnectConfig_GPIOConfiguration',
+ 'InterconnectConfig_SafetyIdentifier', 'InterconnectConfig_ServiceVersion', 'InterconnectCyclic_Command',
+ 'InterconnectCyclic_Command_tool_command', 'InterconnectCyclic_CustomData',
+ 'InterconnectCyclic_CustomData_tool_customData', 'InterconnectCyclic_Feedback',
+ 'InterconnectCyclic_Feedback_tool_feedback', 'InterconnectCyclic_MessageId', 'InterconnectCyclic_ServiceVersion',
+ 'InterfaceModuleType', 'IntrinsicParameters', 'IntrinsicProfileIdentifier', 'JointAccelerationSoftLimits', 'JointAngle',
+ 'JointAngles', 'JointLimitation', 'JointNavigationDirection', 'JointSpeed', 'JointSpeedSoftLimits', 'JointTorque',
+ 'JointTorques', 'JointTrajectoryConstraint', 'JointTrajectoryConstraintType', 'JointsLimitationsList', 'KinematicLimits',
+ 'KinematicLimitsList', 'KinematicTrajectoryConstraints', 'KortexError', 'LedState', 'LimitationType', 'LinearTwist',
+ 'LoopSelection', 'MACAddress', 'ManualFocus', 'Map', 'MapElement', 'MapEvent', 'MapEvent_events', 'MapGroup',
+ 'MapGroupHandle', 'MapGroupList', 'MapHandle', 'MapList', 'Mapping', 'MappingHandle', 'MappingInfoNotification',
+ 'MappingInfoNotificationList', 'MappingList', 'ModelId', 'ModelNumber', 'MotorCommand', 'MotorFeedback',
+ 'NavigationDirection', 'NetworkEvent', 'NetworkHandle', 'NetworkNotification', 'NetworkNotificationList', 'NetworkType',
+ 'NotificationHandle', 'NotificationOptions', 'NotificationType', 'OperatingMode', 'OperatingModeInformation',
+ 'OperatingModeNotification', 'OperatingModeNotificationList', 'Option', 'OptionIdentifier', 'OptionInformation',
+ 'OptionValue', 'Orientation', 'PartNumber', 'PartNumberRevision', 'PasswordChange', 'PayloadInformation', 'Permission',
+ 'Point', 'Pose', 'PositionCommand', 'PowerOnSelfTestResult', 'PreComputedJointTrajectory',
+ 'PreComputedJointTrajectoryElement', 'ProductConfigurationEndEffectorType', 'ProtectionZone', 'ProtectionZoneEvent',
+ 'ProtectionZoneHandle', 'ProtectionZoneInformation', 'ProtectionZoneList', 'ProtectionZoneNotification',
+ 'ProtectionZoneNotificationList', 'Query', 'RampResponse', 'RebootRqst', 'RequestedActionType', 'Resolution', 'RobotEvent',
+ 'RobotEventNotification', 'RobotEventNotificationList', 'RobotiqGripperStatusFlags', 'RunMode', 'RunModes',
+ 'SafetyConfiguration', 'SafetyConfigurationList', 'SafetyEnable', 'SafetyEvent', 'SafetyHandle', 'SafetyIdentifierBankA',
+ 'SafetyInformation', 'SafetyInformationList', 'SafetyNotification', 'SafetyNotificationList', 'SafetyStatus',
+ 'SafetyStatusValue', 'SafetyThreshold', 'Sensor', 'SensorFocusAction', 'SensorFocusAction_action_parameters',
+ 'SensorIdentifier', 'SensorSettings', 'Sequence', 'SequenceHandle', 'SequenceInfoNotification',
+ 'SequenceInfoNotificationList', 'SequenceInformation', 'SequenceList', 'SequenceTask', 'SequenceTaskConfiguration',
+ 'SequenceTaskHandle', 'SequenceTasks', 'SequenceTasksConfiguration', 'SequenceTasksPair', 'SequenceTasksRange',
+ 'SerialNumber', 'Servoing', 'ServoingMode', 'ServoingModeInformation', 'ServoingModeNotification',
+ 'ServoingModeNotificationList', 'ShapeType', 'SignalQuality', 'Snapshot', 'SnapshotType', 'SoundType', 'Ssid',
+ 'StatusFlags', 'StepResponse', 'SubErrorCodes', 'SwitchControlMapping', 'SystemTime', 'Timeout', 'Timestamp',
+ 'ToolConfiguration', 'TorqueCalibration', 'TorqueOffset', 'TrajectoryContinuityMode', 'TrajectoryErrorElement',
+ 'TrajectoryErrorIdentifier', 'TrajectoryErrorReport', 'TrajectoryErrorType', 'TrajectoryInfo', 'TrajectoryInfoType',
+ 'TransformationMatrix', 'TransformationRow', 'TranslationVector', 'Twist', 'TwistAngularSoftLimit', 'TwistCommand',
+ 'TwistLimitation', 'TwistLinearSoftLimit', 'UARTConfiguration', 'UARTDeviceIdentification', 'UARTParity', 'UARTPortId',
+ 'UARTSpeed', 'UARTStopBits', 'UARTWordLength', 'Unit', 'UserEvent', 'UserList', 'UserNotification',
+ 'UserNotificationList', 'UserProfile', 'UserProfileHandle', 'UserProfileList', 'VectorDriveParameters',
+ 'VisionConfig_RotationMatrix', 'VisionConfig_RotationMatrixRow', 'VisionConfig_ServiceVersion', 'VisionEvent',
+ 'VisionModuleType', 'VisionNotification', 'Waypoint', 'WaypointList', 'WaypointValidationReport',
+ 'Waypoint_type_of_waypoint', 'WifiConfiguration', 'WifiConfigurationList', 'WifiEncryptionType', 'WifiInformation',
+ 'WifiInformationList', 'WifiSecurityType', 'Wrench', 'WrenchCommand', 'WrenchLimitation', 'WrenchMode',
+ 'WristDigitalInputIdentifier', 'WristType', 'Xbox360AnalogInputIdentifier', 'Xbox360DigitalInputIdentifier', 'ZoneShape',
+
+kortex_driver.srv:
+
+ 'ActivateMap', 'ActivateMapRequest', 'ActivateMapResponse', 'ActuatorConfig_ClearFaults',
+ 'ActuatorConfig_ClearFaultsRequest', 'ActuatorConfig_ClearFaultsResponse', 'ActuatorConfig_GetControlMode',
+ 'ActuatorConfig_GetControlModeRequest', 'ActuatorConfig_GetControlModeResponse', 'AddSequenceTasks',
+ 'AddSequenceTasksRequest', 'AddSequenceTasksResponse', 'AddWifiConfiguration', 'AddWifiConfigurationRequest',
+ 'AddWifiConfigurationResponse', 'ApplyEmergencyStop', 'ApplyEmergencyStopRequest', 'ApplyEmergencyStopResponse',
+ 'Base_ClearFaults', 'Base_ClearFaultsRequest', 'Base_ClearFaultsResponse', 'Base_GetCapSenseConfig',
+ 'Base_GetCapSenseConfigRequest', 'Base_GetCapSenseConfigResponse', 'Base_GetControlMode', 'Base_GetControlModeRequest',
+ 'Base_GetControlModeResponse', 'Base_OnNotificationControlModeTopic', 'Base_OnNotificationControlModeTopicRequest',
+ 'Base_OnNotificationControlModeTopicResponse', 'Base_SetCapSenseConfig', 'Base_SetCapSenseConfigRequest',
+ 'Base_SetCapSenseConfigResponse', 'Base_Unsubscribe', 'Base_UnsubscribeRequest', 'Base_UnsubscribeResponse',
+ 'ChangePassword', 'ChangePasswordRequest', 'ChangePasswordResponse', 'ClearAllSafetyStatus',
+ 'ClearAllSafetyStatusRequest', 'ClearAllSafetyStatusResponse', 'ClearSafetyStatus', 'ClearSafetyStatusRequest',
+ 'ClearSafetyStatusResponse', 'ComputeForwardKinematics', 'ComputeForwardKinematicsRequest',
+ 'ComputeForwardKinematicsResponse', 'ComputeInverseKinematics', 'ComputeInverseKinematicsRequest',
+ 'ComputeInverseKinematicsResponse', 'ConnectWifi', 'ConnectWifiRequest', 'ConnectWifiResponse',
+ 'ControlConfig_GetControlMode', 'ControlConfig_GetControlModeRequest', 'ControlConfig_GetControlModeResponse',
+ 'ControlConfig_OnNotificationControlModeTopic', 'ControlConfig_OnNotificationControlModeTopicRequest',
+ 'ControlConfig_OnNotificationControlModeTopicResponse', 'ControlConfig_Unsubscribe', 'ControlConfig_UnsubscribeRequest',
+ 'ControlConfig_UnsubscribeResponse', 'CreateAction', 'CreateActionRequest', 'CreateActionResponse', 'CreateMap',
+ 'CreateMapRequest', 'CreateMapResponse', 'CreateMapping', 'CreateMappingRequest', 'CreateMappingResponse',
+ 'CreateProtectionZone', 'CreateProtectionZoneRequest', 'CreateProtectionZoneResponse', 'CreateSequence',
+ 'CreateSequenceRequest', 'CreateSequenceResponse', 'CreateUserProfile', 'CreateUserProfileRequest',
+ 'CreateUserProfileResponse', 'DeleteAction', 'DeleteActionRequest', 'DeleteActionResponse', 'DeleteAllSequenceTasks',
+ 'DeleteAllSequenceTasksRequest', 'DeleteAllSequenceTasksResponse', 'DeleteMap', 'DeleteMapRequest', 'DeleteMapResponse',
+ 'DeleteMapping', 'DeleteMappingRequest', 'DeleteMappingResponse', 'DeleteProtectionZone', 'DeleteProtectionZoneRequest',
+ 'DeleteProtectionZoneResponse', 'DeleteSequence', 'DeleteSequenceRequest', 'DeleteSequenceResponse', 'DeleteSequenceTask',
+ 'DeleteSequenceTaskRequest', 'DeleteSequenceTaskResponse', 'DeleteUserProfile', 'DeleteUserProfileRequest',
+ 'DeleteUserProfileResponse', 'DeleteWifiConfiguration', 'DeleteWifiConfigurationRequest',
+ 'DeleteWifiConfigurationResponse', 'DeviceConfig_GetCapSenseConfig', 'DeviceConfig_GetCapSenseConfigRequest',
+ 'DeviceConfig_GetCapSenseConfigResponse', 'DeviceConfig_SetCapSenseConfig', 'DeviceConfig_SetCapSenseConfigRequest',
+ 'DeviceConfig_SetCapSenseConfigResponse', 'DisableBridge', 'DisableBridgeRequest', 'DisableBridgeResponse',
+ 'DisconnectWifi', 'DisconnectWifiRequest', 'DisconnectWifiResponse', 'DoSensorFocusAction', 'DoSensorFocusActionRequest',
+ 'DoSensorFocusActionResponse', 'DuplicateMap', 'DuplicateMapRequest', 'DuplicateMapResponse', 'DuplicateMapping',
+ 'DuplicateMappingRequest', 'DuplicateMappingResponse', 'EnableBridge', 'EnableBridgeRequest', 'EnableBridgeResponse',
+ 'ExecuteAction', 'ExecuteActionFromReference', 'ExecuteActionFromReferenceRequest', 'ExecuteActionFromReferenceResponse',
+ 'ExecuteActionRequest', 'ExecuteActionResponse', 'ExecuteCalibration', 'ExecuteCalibrationRequest',
+ 'ExecuteCalibrationResponse', 'ExecuteWaypointTrajectory', 'ExecuteWaypointTrajectoryRequest',
+ 'ExecuteWaypointTrajectoryResponse', 'GetActivatedControlLoop', 'GetActivatedControlLoopRequest',
+ 'GetActivatedControlLoopResponse', 'GetActuatorCount', 'GetActuatorCountRequest', 'GetActuatorCountResponse',
+ 'GetAllConfiguredWifis', 'GetAllConfiguredWifisRequest', 'GetAllConfiguredWifisResponse', 'GetAllConnectedControllers',
+ 'GetAllConnectedControllersRequest', 'GetAllConnectedControllersResponse', 'GetAllControllerConfigurations',
+ 'GetAllControllerConfigurationsRequest', 'GetAllControllerConfigurationsResponse', 'GetAllJointsSpeedHardLimitation',
+ 'GetAllJointsSpeedHardLimitationRequest', 'GetAllJointsSpeedHardLimitationResponse', 'GetAllJointsSpeedSoftLimitation',
+ 'GetAllJointsSpeedSoftLimitationRequest', 'GetAllJointsSpeedSoftLimitationResponse', 'GetAllJointsTorqueHardLimitation',
+ 'GetAllJointsTorqueHardLimitationRequest', 'GetAllJointsTorqueHardLimitationResponse', 'GetAllJointsTorqueSoftLimitation',
+ 'GetAllJointsTorqueSoftLimitationRequest', 'GetAllJointsTorqueSoftLimitationResponse', 'GetAllKinematicSoftLimits',
+ 'GetAllKinematicSoftLimitsRequest', 'GetAllKinematicSoftLimitsResponse', 'GetAllSafetyConfiguration',
+ 'GetAllSafetyConfigurationRequest', 'GetAllSafetyConfigurationResponse', 'GetAllSafetyInformation',
+ 'GetAllSafetyInformationRequest', 'GetAllSafetyInformationResponse', 'GetArmState', 'GetArmStateRequest',
+ 'GetArmStateResponse', 'GetAvailableWifi', 'GetAvailableWifiRequest', 'GetAvailableWifiResponse', 'GetAxisOffsets',
+ 'GetAxisOffsetsRequest', 'GetAxisOffsetsResponse', 'GetBootloaderVersion', 'GetBootloaderVersionRequest',
+ 'GetBootloaderVersionResponse', 'GetBridgeConfig', 'GetBridgeConfigRequest', 'GetBridgeConfigResponse', 'GetBridgeList',
+ 'GetBridgeListRequest', 'GetBridgeListResponse', 'GetCalibrationResult', 'GetCalibrationResultRequest',
+ 'GetCalibrationResultResponse', 'GetCartesianReferenceFrame', 'GetCartesianReferenceFrameRequest',
+ 'GetCartesianReferenceFrameResponse', 'GetCoggingFeedforwardMode', 'GetCoggingFeedforwardModeRequest',
+ 'GetCoggingFeedforwardModeResponse', 'GetCommandMode', 'GetCommandModeRequest', 'GetCommandModeResponse',
+ 'GetConfiguredWifi', 'GetConfiguredWifiRequest', 'GetConfiguredWifiResponse', 'GetConnectedWifiInformation',
+ 'GetConnectedWifiInformationRequest', 'GetConnectedWifiInformationResponse', 'GetControlLoopParameters',
+ 'GetControlLoopParametersRequest', 'GetControlLoopParametersResponse', 'GetControllerConfiguration',
+ 'GetControllerConfigurationMode', 'GetControllerConfigurationModeRequest', 'GetControllerConfigurationModeResponse',
+ 'GetControllerConfigurationRequest', 'GetControllerConfigurationResponse', 'GetControllerState',
+ 'GetControllerStateRequest', 'GetControllerStateResponse', 'GetDesiredSpeeds', 'GetDesiredSpeedsRequest',
+ 'GetDesiredSpeedsResponse', 'GetDeviceType', 'GetDeviceTypeRequest', 'GetDeviceTypeResponse',
+ 'GetEthernetConfiguration', 'GetEthernetConfigurationRequest', 'GetEthernetConfigurationResponse',
+ 'GetExtrinsicParameters', 'GetExtrinsicParametersRequest', 'GetExtrinsicParametersResponse', 'GetFirmwareBundleVersions',
+ 'GetFirmwareBundleVersionsRequest', 'GetFirmwareBundleVersionsResponse', 'GetFirmwareVersion',
+ 'GetFirmwareVersionRequest', 'GetFirmwareVersionResponse', 'GetGPIOConfiguration', 'GetGPIOConfigurationRequest',
+ 'GetGPIOConfigurationResponse', 'GetGPIOState', 'GetGPIOStateRequest', 'GetGPIOStateResponse', 'GetGravityVector',
+ 'GetGravityVectorRequest', 'GetGravityVectorResponse', 'GetI2CConfiguration', 'GetI2CConfigurationRequest',
+ 'GetI2CConfigurationResponse', 'GetIPv4Configuration', 'GetIPv4ConfigurationRequest', 'GetIPv4ConfigurationResponse',
+ 'GetIPv4Information', 'GetIPv4InformationRequest', 'GetIPv4InformationResponse', 'GetIPv4Settings',
+ 'GetIPv4SettingsRequest', 'GetIPv4SettingsResponse', 'GetIntrinsicParameters', 'GetIntrinsicParametersProfile',
+ 'GetIntrinsicParametersProfileRequest', 'GetIntrinsicParametersProfileResponse', 'GetIntrinsicParametersRequest',
+ 'GetIntrinsicParametersResponse', 'GetKinematicHardLimits', 'GetKinematicHardLimitsRequest',
+ 'GetKinematicHardLimitsResponse', 'GetKinematicSoftLimits', 'GetKinematicSoftLimitsRequest',
+ 'GetKinematicSoftLimitsResponse', 'GetMACAddress', 'GetMACAddressRequest', 'GetMACAddressResponse',
+ 'GetMeasuredCartesianPose', 'GetMeasuredCartesianPoseRequest', 'GetMeasuredCartesianPoseResponse',
+ 'GetMeasuredGripperMovement', 'GetMeasuredGripperMovementRequest', 'GetMeasuredGripperMovementResponse',
+ 'GetMeasuredJointAngles', 'GetMeasuredJointAnglesRequest', 'GetMeasuredJointAnglesResponse', 'GetModelNumber',
+ 'GetModelNumberRequest', 'GetModelNumberResponse', 'GetOperatingMode', 'GetOperatingModeRequest',
+ 'GetOperatingModeResponse', 'GetOptionInformation', 'GetOptionInformationRequest', 'GetOptionInformationResponse',
+ 'GetOptionValue', 'GetOptionValueRequest', 'GetOptionValueResponse', 'GetPartNumber', 'GetPartNumberRequest',
+ 'GetPartNumberResponse', 'GetPartNumberRevision', 'GetPartNumberRevisionRequest', 'GetPartNumberRevisionResponse',
+ 'GetPayloadInformation', 'GetPayloadInformationRequest', 'GetPayloadInformationResponse', 'GetProductConfiguration',
+ 'GetProductConfigurationRequest', 'GetProductConfigurationResponse', 'GetRunMode', 'GetRunModeRequest',
+ 'GetRunModeResponse', 'GetSafetyConfiguration', 'GetSafetyConfigurationRequest', 'GetSafetyConfigurationResponse',
+ 'GetSafetyEnable', 'GetSafetyEnableRequest', 'GetSafetyEnableResponse', 'GetSafetyInformation',
+ 'GetSafetyInformationRequest', 'GetSafetyInformationResponse', 'GetSafetyStatus', 'GetSafetyStatusRequest',
+ 'GetSafetyStatusResponse', 'GetSelectedCustomData', 'GetSelectedCustomDataRequest', 'GetSelectedCustomDataResponse',
+ 'GetSensorSettings', 'GetSensorSettingsRequest', 'GetSensorSettingsResponse', 'GetSerialNumber', 'GetSerialNumberRequest',
+ 'GetSerialNumberResponse', 'GetServoing', 'GetServoingMode', 'GetServoingModeRequest', 'GetServoingModeResponse',
+ 'GetServoingRequest', 'GetServoingResponse', 'GetToolConfiguration', 'GetToolConfigurationRequest',
+ 'GetToolConfigurationResponse', 'GetTorqueOffset', 'GetTorqueOffsetRequest', 'GetTorqueOffsetResponse',
+ 'GetTrajectoryErrorReport', 'GetTrajectoryErrorReportRequest', 'GetTrajectoryErrorReportResponse',
+ 'GetTwistHardLimitation', 'GetTwistHardLimitationRequest', 'GetTwistHardLimitationResponse', 'GetTwistSoftLimitation',
+ 'GetTwistSoftLimitationRequest', 'GetTwistSoftLimitationResponse', 'GetUARTConfiguration', 'GetUARTConfigurationRequest',
+ 'GetUARTConfigurationResponse', 'GetWifiCountryCode', 'GetWifiCountryCodeRequest', 'GetWifiCountryCodeResponse',
+ 'GetWifiInformation', 'GetWifiInformationRequest', 'GetWifiInformationResponse', 'GetWrenchHardLimitation',
+ 'GetWrenchHardLimitationRequest', 'GetWrenchHardLimitationResponse', 'GetWrenchSoftLimitation',
+ 'GetWrenchSoftLimitationRequest', 'GetWrenchSoftLimitationResponse', 'I2CRead', 'I2CReadRegister',
+ 'I2CReadRegisterRequest', 'I2CReadRegisterResponse', 'I2CReadRequest', 'I2CReadResponse', 'I2CWrite', 'I2CWriteRegister',
+ 'I2CWriteRegisterRequest', 'I2CWriteRegisterResponse', 'I2CWriteRequest', 'I2CWriteResponse',
+ 'IsCommunicationInterfaceEnable', 'IsCommunicationInterfaceEnableRequest', 'IsCommunicationInterfaceEnableResponse',
+ 'MoveSequenceTask', 'MoveSequenceTaskRequest', 'MoveSequenceTaskResponse', 'MoveToPosition', 'MoveToPositionRequest',
+ 'MoveToPositionResponse', 'OnNotificationActionTopic', 'OnNotificationActionTopicRequest',
+ 'OnNotificationActionTopicResponse', 'OnNotificationArmStateTopic', 'OnNotificationArmStateTopicRequest',
+ 'OnNotificationArmStateTopicResponse', 'OnNotificationConfigurationChangeTopic',
+ 'OnNotificationConfigurationChangeTopicRequest', 'OnNotificationConfigurationChangeTopicResponse',
+ 'OnNotificationControlConfigurationTopic', 'OnNotificationControlConfigurationTopicRequest',
+ 'OnNotificationControlConfigurationTopicResponse', 'OnNotificationControllerTopic',
+ 'OnNotificationControllerTopicRequest', 'OnNotificationControllerTopicResponse', 'OnNotificationFactoryTopic',
+ 'OnNotificationFactoryTopicRequest', 'OnNotificationFactoryTopicResponse', 'OnNotificationMappingInfoTopic',
+ 'OnNotificationMappingInfoTopicRequest', 'OnNotificationMappingInfoTopicResponse', 'OnNotificationNetworkTopic',
+ 'OnNotificationNetworkTopicRequest', 'OnNotificationNetworkTopicResponse', 'OnNotificationOperatingModeTopic',
+ 'OnNotificationOperatingModeTopicRequest', 'OnNotificationOperatingModeTopicResponse',
+ 'OnNotificationProtectionZoneTopic', 'OnNotificationProtectionZoneTopicRequest',
+ 'OnNotificationProtectionZoneTopicResponse', 'OnNotificationRobotEventTopic', 'OnNotificationRobotEventTopicRequest',
+ 'OnNotificationRobotEventTopicResponse', 'OnNotificationSafetyTopic', 'OnNotificationSafetyTopicRequest',
+ 'OnNotificationSafetyTopicResponse', 'OnNotificationSequenceInfoTopic', 'OnNotificationSequenceInfoTopicRequest',
+ 'OnNotificationSequenceInfoTopicResponse', 'OnNotificationServoingModeTopic', 'OnNotificationServoingModeTopicRequest',
+ 'OnNotificationServoingModeTopicResponse', 'OnNotificationUserTopic', 'OnNotificationUserTopicRequest',
+ 'OnNotificationUserTopicResponse', 'OnNotificationVisionTopic', 'OnNotificationVisionTopicRequest',
+ 'OnNotificationVisionTopicResponse', 'PauseAction', 'PauseActionRequest', 'PauseActionResponse', 'PauseSequence',
+ 'PauseSequenceRequest', 'PauseSequenceResponse', 'PlayAdvancedSequence', 'PlayAdvancedSequenceRequest',
+ 'PlayAdvancedSequenceResponse', 'PlayCartesianTrajectory', 'PlayCartesianTrajectoryOrientation',
+ 'PlayCartesianTrajectoryOrientationRequest', 'PlayCartesianTrajectoryOrientationResponse',
+ 'PlayCartesianTrajectoryPosition', 'PlayCartesianTrajectoryPositionRequest', 'PlayCartesianTrajectoryPositionResponse',
+ 'PlayCartesianTrajectoryRequest', 'PlayCartesianTrajectoryResponse', 'PlayJointTrajectory', 'PlayJointTrajectoryRequest',
+ 'PlayJointTrajectoryResponse', 'PlayPreComputedJointTrajectory', 'PlayPreComputedJointTrajectoryRequest',
+ 'PlayPreComputedJointTrajectoryResponse', 'PlaySelectedJointTrajectory', 'PlaySelectedJointTrajectoryRequest',
+ 'PlaySelectedJointTrajectoryResponse', 'PlaySequence', 'PlaySequenceRequest', 'PlaySequenceResponse', 'ReadAction',
+ 'ReadActionRequest', 'ReadActionResponse', 'ReadAllActions', 'ReadAllActionsRequest', 'ReadAllActionsResponse',
+ 'ReadAllDevices', 'ReadAllDevicesRequest', 'ReadAllDevicesResponse', 'ReadAllMappings', 'ReadAllMappingsRequest',
+ 'ReadAllMappingsResponse', 'ReadAllMaps', 'ReadAllMapsRequest', 'ReadAllMapsResponse', 'ReadAllProtectionZones',
+ 'ReadAllProtectionZonesRequest', 'ReadAllProtectionZonesResponse', 'ReadAllSequenceTasks', 'ReadAllSequenceTasksRequest',
+ 'ReadAllSequenceTasksResponse', 'ReadAllSequences', 'ReadAllSequencesRequest', 'ReadAllSequencesResponse',
+ 'ReadAllUserProfiles', 'ReadAllUserProfilesRequest', 'ReadAllUserProfilesResponse', 'ReadAllUsers', 'ReadAllUsersRequest',
+ 'ReadAllUsersResponse', 'ReadMap', 'ReadMapRequest', 'ReadMapResponse', 'ReadMapping', 'ReadMappingRequest',
+ 'ReadMappingResponse', 'ReadProtectionZone', 'ReadProtectionZoneRequest', 'ReadProtectionZoneResponse', 'ReadSequence',
+ 'ReadSequenceRequest', 'ReadSequenceResponse', 'ReadSequenceTask', 'ReadSequenceTaskRequest', 'ReadSequenceTaskResponse',
+ 'ReadUserProfile', 'ReadUserProfileRequest', 'ReadUserProfileResponse', 'RebootRequest', 'RebootRequestRequest',
+ 'RebootRequestResponse', 'ResetGravityVector', 'ResetGravityVectorRequest', 'ResetGravityVectorResponse',
+ 'ResetJointAccelerationSoftLimits', 'ResetJointAccelerationSoftLimitsRequest', 'ResetJointAccelerationSoftLimitsResponse',
+ 'ResetJointSpeedSoftLimits', 'ResetJointSpeedSoftLimitsRequest', 'ResetJointSpeedSoftLimitsResponse',
+ 'ResetPayloadInformation', 'ResetPayloadInformationRequest', 'ResetPayloadInformationResponse', 'ResetSafetyDefaults',
+ 'ResetSafetyDefaultsRequest', 'ResetSafetyDefaultsResponse', 'ResetToolConfiguration', 'ResetToolConfigurationRequest',
+ 'ResetToolConfigurationResponse', 'ResetTwistAngularSoftLimit', 'ResetTwistAngularSoftLimitRequest',
+ 'ResetTwistAngularSoftLimitResponse', 'ResetTwistLinearSoftLimit', 'ResetTwistLinearSoftLimitRequest', 
+ 'ResetTwistLinearSoftLimitResponse', 'RestoreFactoryProductConfiguration', 'RestoreFactoryProductConfigurationRequest',
+ 'RestoreFactoryProductConfigurationResponse', 'RestoreFactorySettings', 'RestoreFactorySettingsRequest',
+ 'RestoreFactorySettingsResponse', 'ResumeAction', 'ResumeActionRequest', 'ResumeActionResponse', 'ResumeSequence',
+ 'ResumeSequenceRequest', 'ResumeSequenceResponse', 'SelectCustomData', 'SelectCustomDataRequest',
+ 'SelectCustomDataResponse', 'SendGripperCommand', 'SendGripperCommandRequest', 'SendGripperCommandResponse',
+ 'SendJointSpeedsCommand', 'SendJointSpeedsCommandRequest', 'SendJointSpeedsCommandResponse',
+ 'SendJointSpeedsJoystickCommand', 'SendJointSpeedsJoystickCommandRequest', 'SendJointSpeedsJoystickCommandResponse',
+ 'SendSelectedJointSpeedCommand', 'SendSelectedJointSpeedCommandRequest', 'SendSelectedJointSpeedCommandResponse',
+ 'SendSelectedJointSpeedJoystickCommand', 'SendSelectedJointSpeedJoystickCommandRequest',
+ 'SendSelectedJointSpeedJoystickCommandResponse', 'SendTwistCommand', 'SendTwistCommandRequest',
+ 'SendTwistCommandResponse', 'SendTwistJoystickCommand', 'SendTwistJoystickCommandRequest',
+ 'SendTwistJoystickCommandResponse', 'SendWrenchCommand', 'SendWrenchCommandRequest', 'SendWrenchCommandResponse',
+ 'SendWrenchJoystickCommand', 'SendWrenchJoystickCommandRequest', 'SendWrenchJoystickCommandResponse',
+ 'SetActivatedControlLoop', 'SetActivatedControlLoopRequest', 'SetActivatedControlLoopResponse', 'SetAdmittance',
+ 'SetAdmittanceRequest', 'SetAdmittanceResponse', 'SetApiOptions', 'SetApiOptionsRequest', 'SetApiOptionsResponse',
+ 'SetAxisOffsets', 'SetAxisOffsetsRequest', 'SetAxisOffsetsResponse', 'SetCartesianReferenceFrame',
+ 'SetCartesianReferenceFrameRequest', 'SetCartesianReferenceFrameResponse', 'SetCoggingFeedforwardMode',
+ 'SetCoggingFeedforwardModeRequest', 'SetCoggingFeedforwardModeResponse', 'SetCommandMode', 'SetCommandModeRequest',
+ 'SetCommandModeResponse', 'SetCommunicationInterfaceEnable', 'SetCommunicationInterfaceEnableRequest',
+ 'SetCommunicationInterfaceEnableResponse', 'SetControlLoopParameters', 'SetControlLoopParametersRequest',
+ 'SetControlLoopParametersResponse', 'SetControlMode', 'SetControlModeRequest', 'SetControlModeResponse',
+ 'SetControllerConfiguration', 'SetControllerConfigurationMode', 'SetControllerConfigurationModeRequest',
+ 'SetControllerConfigurationModeResponse', 'SetControllerConfigurationRequest', 'SetControllerConfigurationResponse',
+ 'SetDesiredAngularTwist', 'SetDesiredAngularTwistRequest', 'SetDesiredAngularTwistResponse', 'SetDesiredJointSpeeds',
+ 'SetDesiredJointSpeedsRequest', 'SetDesiredJointSpeedsResponse', 'SetDesiredLinearTwist', 'SetDesiredLinearTwistRequest',
+ 'SetDesiredLinearTwistResponse', 'SetDeviceID', 'SetDeviceIDRequest', 'SetDeviceIDResponse', 'SetEthernetConfiguration',
+ 'SetEthernetConfigurationRequest', 'SetEthernetConfigurationResponse', 'SetExtrinsicParameters',
+ 'SetExtrinsicParametersRequest', 'SetExtrinsicParametersResponse', 'SetGPIOConfiguration', 'SetGPIOConfigurationRequest',
+ 'SetGPIOConfigurationResponse', 'SetGPIOState', 'SetGPIOStateRequest', 'SetGPIOStateResponse', 'SetGravityVector',
+ 'SetGravityVectorRequest', 'SetGravityVectorResponse', 'SetI2CConfiguration', 'SetI2CConfigurationRequest',
+ 'SetI2CConfigurationResponse', 'SetIPv4Configuration', 'SetIPv4ConfigurationRequest', 'SetIPv4ConfigurationResponse',
+ 'SetIPv4Settings', 'SetIPv4SettingsRequest', 'SetIPv4SettingsResponse', 'SetIntrinsicParameters',
+ 'SetIntrinsicParametersRequest', 'SetIntrinsicParametersResponse', 'SetJointAccelerationSoftLimits',
+ 'SetJointAccelerationSoftLimitsRequest', 'SetJointAccelerationSoftLimitsResponse', 'SetJointSpeedSoftLimits',
+ 'SetJointSpeedSoftLimitsRequest', 'SetJointSpeedSoftLimitsResponse', 'SetOperatingMode', 'SetOperatingModeRequest',
+ 'SetOperatingModeResponse', 'SetOptionValue', 'SetOptionValueRequest', 'SetOptionValueResponse', 'SetPayloadInformation',
+ 'SetPayloadInformationRequest', 'SetPayloadInformationResponse', 'SetRunMode', 'SetRunModeRequest', 'SetRunModeResponse',
+ 'SetSafetyConfiguration', 'SetSafetyConfigurationRequest', 'SetSafetyConfigurationResponse', 'SetSafetyEnable',
+ 'SetSafetyEnableRequest', 'SetSafetyEnableResponse', 'SetSafetyErrorThreshold', 'SetSafetyErrorThresholdRequest',
+ 'SetSafetyErrorThresholdResponse', 'SetSafetyWarningThreshold', 'SetSafetyWarningThresholdRequest',
+ 'SetSafetyWarningThresholdResponse', 'SetSensorSettings', 'SetSensorSettingsRequest', 'SetSensorSettingsResponse',
+ 'SetServoing', 'SetServoingMode', 'SetServoingModeRequest', 'SetServoingModeResponse', 'SetServoingRequest',
+ 'SetServoingResponse', 'SetToolConfiguration', 'SetToolConfigurationRequest', 'SetToolConfigurationResponse',
+ 'SetTorqueOffset', 'SetTorqueOffsetRequest', 'SetTorqueOffsetResponse', 'SetTwistAngularSoftLimit',
+ 'SetTwistAngularSoftLimitRequest', 'SetTwistAngularSoftLimitResponse', 'SetTwistLinearSoftLimit',
+ 'SetTwistLinearSoftLimitRequest', 'SetTwistLinearSoftLimitResponse', 'SetUARTConfiguration',
+ 'SetUARTConfigurationRequest', 'SetUARTConfigurationResponse', 'SetWifiCountryCode', 'SetWifiCountryCodeRequest',
+ 'SetWifiCountryCodeResponse', 'StartTeaching', 'StartTeachingRequest', 'StartTeachingResponse', 'StartWifiScan',
+ 'StartWifiScanRequest', 'StartWifiScanResponse', 'Stop', 'StopAction', 'StopActionRequest', 'StopActionResponse',
+ 'StopCalibration', 'StopCalibrationRequest', 'StopCalibrationResponse', 'StopRequest', 'StopResponse', 'StopSequence',
+ 'StopSequenceRequest', 'StopSequenceResponse', 'StopTeaching', 'StopTeachingRequest', 'StopTeachingResponse',
+ 'SwapSequenceTasks', 'SwapSequenceTasksRequest', 'SwapSequenceTasksResponse', 'TakeSnapshot', 'TakeSnapshotRequest',
+ 'TakeSnapshotResponse', 'UpdateAction', 'UpdateActionRequest', 'UpdateActionResponse',
+ 'UpdateEndEffectorTypeConfiguration', 'UpdateEndEffectorTypeConfigurationRequest',
+ 'UpdateEndEffectorTypeConfigurationResponse', 'UpdateMap', 'UpdateMapRequest', 'UpdateMapResponse', 'UpdateMapping',
+ 'UpdateMappingRequest', 'UpdateMappingResponse', 'UpdateProtectionZone', 'UpdateProtectionZoneRequest',
+ 'UpdateProtectionZoneResponse', 'UpdateSequence', 'UpdateSequenceRequest', 'UpdateSequenceResponse', 'UpdateSequenceTask',
+ 'UpdateSequenceTaskRequest', 'UpdateSequenceTaskResponse', 'UpdateUserProfile', 'UpdateUserProfileRequest',
+ 'UpdateUserProfileResponse', 'ValidateWaypointList', 'ValidateWaypointListRequest', 'ValidateWaypointListResponse'
+
+
+
+
+
+
+
+
+
+

@@ -97,8 +97,8 @@ def min_dist_bound(vec):#, base, max_h, min_h):
 
     #dist from base bound
     vec_out = vec
-    #if(vec[0] < 0.38):#todo: this needed?
-    #    vec_out[0] = 0.38
+    if(vec[0] < 0.38):#todo: this needed?
+        vec_out[0] = 0.38
     if(vec[0] > 0.76):
         vec_out[0] = 0.76
     #max/min vertical
@@ -628,8 +628,8 @@ class Control:
 
         #spherical dist bound subtracts the ordinary origin, then we can add our starting point
         vec_res = spherical_dist_bound(added_vec,0.6)
-        if restrict_horizontal:
-            vec_res = horizontal_dist_bound(vec_res)
+        #if restrict_horizontal:
+        #    vec_res = horizontal_dist_bound(vec_res)
         req = PlayCartesianTrajectoryRequest()
         req.input.target_pose.x = vec_res[0]
         req.input.target_pose.y = vec_res[1]
@@ -770,7 +770,7 @@ class Control:
             possible_pts[stage],
         ]
         position_vec = spherical_dist_bound(position_vec,0.6)
-        position_vec = horizontal_dist_bound(position_vec)
+        #position_vec = horizontal_dist_bound(position_vec)
         move_to = {"targetPose":{
             "x":position_vec[0],
             "y":position_vec[1],

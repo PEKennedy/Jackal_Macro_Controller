@@ -111,6 +111,13 @@ Rviz preset for the kinova arm, however, Rviz isn't really needed for this proje
 Old code that ended up not working or simply unused in control_kortex.py, kept for reference just
 in case.
 
+What did you learn that others will need to know
+gotchas
+quick code readme
+abstract, motivations
+things that will break the robot
+1 day crash course
+
 # Notes on how to use the Jackal+Kinova gen3 lite setup
 ## Battery and power on
 Jackal is powered by a single large battery. Find the axis camera (small camera mounted fixed to the jackal)
@@ -313,6 +320,9 @@ So I had trouble getting most new rosservice types I saw and wanted to use to wo
 ever able to add the stop type). For the most part, I would try to create objects like 
 req = SendTwistJoystickCommandRequest(), only to either get an error that I wasn't creating the
 object correctly, or absolutely nothing (no movement, simulation or on the real robot).
+One possibility is that there was a mode switch that needed to be made in order to use the twist
+or velocity controllers. At line 340 of old_code.txt, you will find an attempt to use a service
+I found promising for doing a mode switch, but found no success in using.
 
 Here's some official documentation of rosservices: http://wiki.ros.org/rospy/Overview/Services
 
@@ -369,8 +379,46 @@ and possibly inventing out-of-the-box solutions if the pre-planned actions are i
 face value.
 
 ## The pre-planned actions control scheme thus far
+The primary idea of the pre-planned actions control scheme is that users will have a very simple
+control scheme and be able to combine actions to achieve complex goals. To this end, users
+should be able to do simple modifications to the actions.
 
+The control scheme currently has the following button layout:
+- O >>> moves the arm forwards, and grabs or opens based on current gripper position
+- O (2x) >>> opens then closes gripper, moves arm forwards to "poke"
+- X >>> conducts a "screwing" motion (rotate an object about our "y" axis), then drops
+- Square >>> cancels the current motion
+- Triangle >>> Moves the gripper up (cycling between 3 preset heights)
+- Triangle (2x) >>> Moves the gripper down (^^^)
+- Share >>> rotates the gripper between a horizontal and vertical orientation 
+- Share (2x) >>> moves the gripper around in a circle (about the vertical and side-to-side plane in front of the robot)
+- Option (2x )>>> moves the gripper around in a circle (opposite direction)
+- Left Stick button >>> sends the arm to the default position
+- Left Stick button (2x) >>> sends the arm to the home position and then the default position
+- Right Shoulder button + Left stick still controls Jackal
 
+Some expected combinations are that the user can use the circle or height changes to change 
+where the arm is when the do a grab or put back motion. One of the things Daniel would like to see
+are perhaps orientation changes ("I want grab down/up"), for additional flexibility. This would 
+likely involve changing the relative movement code (see go_to_cart_pose_relative at line 598),
+which presently does a subtraction on positions to find relative movement (allowing different
+heights, but never different directions). A new step would need to be added here which rotates
+the relative movement vector to face the direction of the gripper.
+
+One of the issues with adding or modifying actions is that the arm can easily get stuck.
+What happens is that the arm's software finds the arm can't reach a position, and so stops the arm,
+however, it doesn't send any notification (that I know of) about this, and continues "trying"
+to complete the sequence. The only solution for the user presently is to use Square to cancel
+a motion, and then left stick button to reset. If square is not pressed, then the moment the
+arm starts moving back to home, the sequence will "overlap", and move the arm into an unpredictable
+position. The most common way of getting the arm stuck this way is to use the screw/RotY motion,
+especially when its position is modified from the default position.
+
+To try and mitigate or fix the stuck issues, the first place to look in control_kortex.py is around
+line 90 with min_dist_bound. The distance bounds will attempt to keep the arm from going too far
+in any direction, thus avoiding many issues with getting stuck by the controller trying to put the
+arm in a position too far for it to reach. The biggest improvement that could be made would be
+to reach the orientation of the gripper, and shorten the distance bounds based on this. 
 
 ## REB approval and consent forms
 This project has obtained REB approval (REB 2022-113). Consent forms to hand out to participants

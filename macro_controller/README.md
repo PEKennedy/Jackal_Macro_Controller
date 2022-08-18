@@ -179,6 +179,15 @@ Check bluetoothctl, what devices are available?
 Find your device's MAC address, and make sure it is set to trusted, and try connecting to it
 from Jackal's end.
 
+## In case the Jackal stops receiving controller input
+This can happen regularly when controlling this control_kortex.py over bluetooth, the solution
+is to unbind (share+PS button until bluelight on controller turns off), and rebind (hold PS button)  
+
+You can use jstest to verify the inputs are being received again.
+
+Switching to a controller wired to a computer instead of bluetooth connected to Jackal would be
+a significant improvement by virtue of avoiding this problem.
+
 ## Basic overview of ROS
 ROS ("Robot Operating System") is software which sits above the real operating system meant for 
 controlling robots.

@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/UNB_HCI.iml" filepath="$PROJECT_DIR$/.idea/UNB_HCI.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/Jackal_Macro_Controller.iml" filepath="$PROJECT_DIR$/.idea/UNB_HCI.iml" />
     </modules>
   </component>
 </project>

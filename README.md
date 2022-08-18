@@ -5,7 +5,7 @@ setup scripts and documents.
 ## Scripts
 These are setup documents and scripts which can help somebody get setup for a Ubuntu-ROS VM with the Kinova arm and Jackal
 
-## pk_control
+## macro_controller
 Some initial work on a controller for the kinova arm
 
 I'm thinking use the moveit library since it doesn't

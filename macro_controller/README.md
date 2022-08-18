@@ -1,5 +1,9 @@
-# pk_control Package
+# macro_controller Package
 catkin package to control the kinova arm, based on a python example from ROS_kortex
+
+** you will need need to build the package on (only the first time on a given machine)
+
+    catkin_make
 
 ## Running In Simulation
 
@@ -21,7 +25,7 @@ Launch the Simulation
 
 Launch this control program
 
-    roslaunch pk_control control.launch
+    roslaunch macro_controller control.launch
 
 optional parameters are:
 - robot_name (default := my_gen3_lite)
@@ -34,17 +38,17 @@ Start the Joystick
     rosrun joy joy_node
 
 A future improvement would be to make the simulation + joystick just be
-parameters of pk_control control.launch,
-reducing this to just roscore and pk_control.
+parameters of macro_controller control.launch,
+reducing this to just roscore and macro_controller.
 Some work has been done on this
 
 ## Run on Jackal (real robot)
 
 To use this on jackal, first move this project onto jackal
 
-    scp -r ~/catkin_ws/src/UNB_HCI administrator@CPR-J100-0574:~/catkin_ws/src
+    scp -r ~/catkin_ws/src/Jackal_Macro_Controller administrator@CPR-J100-0574:~/catkin_ws/src
 
-Then build the package on Jackal (not any more, only the first time)
+Then build the package on Jackal (only the first time)
 
     catkin_make
 
@@ -55,7 +59,7 @@ Launch the kinova arm in one terminal ssh'd into Jackal
 
 Then in a different ssh'd terminal, launch the control node once the first terminal says "The Kortex driver has been initialized correctly"
 
-    roslaunch pk_control control.launch robot_name:=kinova_arm use_joy:=True joy_name:="ds4x"
+    roslaunch macro_controller control.launch robot_name:=kinova_arm use_joy:=True joy_name:="ds4x"
 
 Note the different robot name to refer to the real arm as opposed to the simulated arm and the changed joystick name
 If you need to find what joystick you should use:
@@ -79,7 +83,7 @@ Start the Joystick
 Also: To view cameras, do the following in a new terminal (local to your machine)
 
     export ROS_MASTER_URI=http://cpr-j100-0574:11311
-    python3 ./pk_control/src/viewer.py
+    python3 ./macro_controller/src/viewer.py
 
 ## control_kortex.py
 Example from github which uses an old version of ros_kortex to move the arm.
@@ -208,7 +212,7 @@ In this project, control.launch is used to load the combined_sequences.json file
 parameter server so control_kortex can use the different sequences, and to tell the program
 whether or not to play a demo sequence, or use the controller.
 
-To use roslaunch though, you must build a ros package (what pk_control is). To do this use
+To use roslaunch though, you must build a ros package (what macro_controller is). To do this use
 catkin_make at the root of your workspace. For setting up a catkin workspace, see the ROS
 tutorials online (http://wiki.ros.org/catkin/Tutorials/create_a_workspace)
 Running catkin_make has already been done on Jackal, and does not have to be done when you make
@@ -336,7 +340,7 @@ controls, then starting something else)
 
 ## installing ROS, ros_kortex
 
-See the .sh files in UNB_HCI/scripts, these bash scripts aren't tested, but should at least
+See the .sh files in Jackal_Macro_Controller/scripts, these bash scripts aren't tested, but should at least
 demonstrate most of the commands that need to be run for setup.
 
 See Starting a Ubuntu-ROS env.docx for some further steps, though the document does quickly just

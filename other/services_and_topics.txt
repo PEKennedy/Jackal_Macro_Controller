@@ -1,4 +1,4 @@
-x@x-VirtualBox:~/catkin_ws/src/UNB_HCI$ rosservice list
+x@x-VirtualBox:~/catkin_ws/src/Jackal_Macro_Controller$ rosservice list
 /gazebo/apply_body_wrench
 /gazebo/apply_joint_effort
 /gazebo/clear_body_wrenches
@@ -326,7 +326,7 @@ x@x-VirtualBox:~/catkin_ws/src/UNB_HCI$ rosservice list
 /rosout/get_loggers
 /rosout/set_logger_level
 
-x@x-VirtualBox:~/catkin_ws/src/UNB_HCI$ rostopic list
+x@x-VirtualBox:~/catkin_ws/src/Jackal_Macro_Controller$ rostopic list
 /clock
 /gazebo/link_states
 /gazebo/model_states

@@ -8,10 +8,10 @@
 
     <!-- load positions and sequences into rosparams -->
     <!-- positions -->
-    <rosparam file="$(find pk_control)/src/positions/combined_poses.json" />
+    <rosparam file="$(find macro_controller)/src/positions/combined_poses.json" />
 
     <!-- sequences -->
-    <rosparam file="$(find pk_control)/src/sequences/combined_seqs.json" />
+    <rosparam file="$(find macro_controller)/src/sequences/combined_seqs.json" />
 
     <!-- if use_joy is true, set the current joystick for joy_node to be the joy_name parameter-->
     <group if="$(arg use_joy)">
@@ -23,7 +23,7 @@
     </group>
 
     <!-- Launch the example in that namespace control_kortex.py clear_params="true"-->
-    <node name="pk_arm_controller" pkg="pk_control" type="control_kortex.py" output="screen"
+    <node name="pk_arm_controller" pkg="macro_controller" type="control_kortex.py" output="screen"
         launch-prefix="bash -c 'sleep $(arg start_delay_seconds); $0 $@' "
         ns="$(arg robot_name)" clear_params="true">
 

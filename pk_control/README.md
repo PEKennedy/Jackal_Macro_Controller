@@ -368,6 +368,10 @@ unfair to the reference), but as challenging tasks which requires a full use of 
 and possibly inventing out-of-the-box solutions if the pre-planned actions are insufficient at
 face value.
 
+## The pre-planned actions control scheme thus far
+
+
+
 ## REB approval and consent forms
 This project has obtained REB approval (REB 2022-113). Consent forms to hand out to participants
 are available?? TODO

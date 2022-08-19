@@ -421,7 +421,7 @@ The control scheme currently has the following button layout:
 Some expected combinations are that the user can use the circle or height changes to change 
 where the arm is when the do a grab or put back motion. One of the things Daniel would like to see
 are perhaps orientation changes ("I want grab down/up"), for additional flexibility. This would 
-likely involve changing the relative movement code (see go_to_cart_pose_relative at line 598),
+likely involve changing the relative movement code (see go_to_cart_pose_relative at line 632),
 which presently does a subtraction on positions to find relative movement (allowing different
 heights, but never different directions). A new step would need to be added here which rotates
 the relative movement vector to face the direction of the gripper.
@@ -438,7 +438,7 @@ position. The most common way of getting the arm stuck this way is to use the sc
 especially when its position is modified from the default position.
 
 To try and mitigate or fix the stuck issues, the first place to look in control_kortex.py is around
-line 90 with min_dist_bound. The distance bounds will attempt to keep the arm from going too far
+line 124 with min_dist_bound. The distance bounds will attempt to keep the arm from going too far
 in any direction, thus avoiding many issues with getting stuck by the controller trying to put the
 arm in a position too far for it to reach. The biggest improvement that could be made would be
 to reach the orientation of the gripper, and shorten the distance bounds based on this. 

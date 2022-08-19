@@ -61,6 +61,40 @@ def vec_add(a,b):
         result.append(val1 + val2)
     return result
 
+def vec_dot_mul(a,b):
+    result = []
+    for val1, val2 in zip(a, b):
+        result.append(val1 * val2)
+    return result
+
+#perhaps these math utilities should be moved to their own file, and a new vector type made
+# complete with operator overloading https://www.programiz.com/python-programming/operator-overloading
+
+# rotate a vector about an axis theta radians, taken from https://stackoverflow.com/questions/6802577/rotation-of-3d-vector
+# which implements the euler-rodrigues formula
+# this returns a rotation matrix you dot multiply your vector by
+"""
+Return the rotation matrix associated with counterclockwise rotation about
+the given axis by theta radians.
+** this is untested
+"""
+def rotation_matrix(axis, theta):
+    axis = axis / math.sqrt(vec_dot_mul(axis, axis))
+    a = math.cos(theta / 2.0)
+    b, c, d = -axis * math.sin(theta / 2.0)
+    aa, bb, cc, dd = a * a, b * b, c * c, d * d
+    bc, ad, ac, ab, bd, cd = b * c, a * d, a * c, a * b, b * d, c * d
+    return [
+        [aa + bb - cc - dd, 2 * (bc + ad), 2 * (bd - ac)],
+        [2 * (bc - ad), aa + cc - bb - dd, 2 * (cd + ab)],
+        [2 * (bd + ac), 2 * (cd - ab), aa + dd - bb - cc]
+    ]
+
+# returns the rotated vector, vec and axis are both [x,y,z], theta is radians
+def rotate_vector(vec, axis, theta):
+    rot_matrix = rotation_matrix(axis, theta)
+    return vec_dot_mul(rot_matrix, vec)
+
 # Function to limit the position of the arm to areas where it (probably) won't get stuck
 # take a vec3 position, limit it to something in reach of the arm
 # judging by full_forward position, the base height (origin) is around 0.25 or 0.26

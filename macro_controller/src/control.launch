@@ -23,7 +23,7 @@
     </group>
 
     <!-- Launch the example in that namespace control_kortex.py clear_params="true"-->
-    <node name="pk_arm_controller" pkg="macro_controller" type="control_kortex.py" output="screen"
+    <node name="arm_controller" pkg="macro_controller" type="control_kortex.py" output="screen"
         launch-prefix="bash -c 'sleep $(arg start_delay_seconds); $0 $@' "
         ns="$(arg robot_name)" clear_params="true">
 

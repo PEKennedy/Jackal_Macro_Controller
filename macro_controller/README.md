@@ -116,6 +116,12 @@ Old code that ended up not working or simply unused in control_kortex.py, kept f
 in case.
 
 # Notes on how to use the Jackal+Kinova gen3 lite setup
+## Some terminology
+- Jackal: the four wheeled robot
+- Kinova arm: the robotic arm on top of the Jackal (formally kinova gen3 lite)
+- Axis camera: (large rotatable camera mounted at the rear of the Jackal)
+- Flir camera: small camera mounted on the front of the Jackal
+
 ## Battery and power on
 Jackal is powered by a single large battery. Find the axis camera (small camera mounted fixed to the jackal)
 and pull up on the Jackal's metal lip. Inside will be the battery housing.

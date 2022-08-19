@@ -131,7 +131,7 @@ def min_dist_bound(vec):#, base, max_h, min_h):
 
     #dist from base bound
     vec_out = vec
-    if(vec[0] < 0.38):#todo: this needed?
+    if(vec[0] < 0.38):
         vec_out[0] = 0.38
     if(vec[0] > 0.76):
         vec_out[0] = 0.76

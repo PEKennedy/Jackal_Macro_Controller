@@ -115,13 +115,6 @@ Rviz preset for the kinova arm, however, Rviz isn't really needed for this proje
 Old code that ended up not working or simply unused in control_kortex.py, kept for reference just
 in case.
 
-What did you learn that others will need to know
-gotchas
-quick code readme
-abstract, motivations
-things that will break the robot
-1 day crash course
-
 # Notes on how to use the Jackal+Kinova gen3 lite setup
 ## Battery and power on
 Jackal is powered by a single large battery. Find the axis camera (small camera mounted fixed to the jackal)
@@ -148,9 +141,17 @@ and plug your own computer into this port.
 Turn the kinova arm on.
 Then, in a browser, go to 192.168.1.10 to see the webapp. Login is admin, (ask)
 The webapp allows you to control the arm, and record sequences.
+By finding the sequence list, there should be an option to export sequences to json or xml.
+For this project, any sequence you wish to save should be exported to json, then put through
+a json beautifier for clarity (the downloaded json file has no formatting). To use it in this
+project, find src/sequences/combined_sequences.json, and add a space in the sequence list to add
+your sequence. From your downloaded json, select the entire object which directly contains the
+applicationData and name keys, and copy+paste it into combined_sequences.json. You can now call
+this sequence using the self.execute_sequence("my_sequence_name") function.
 
 ## Using the default Kinova arm controls
 Plug a controller into the micro-usb port, and turn the kinova arm on.
+See the gen3 lite user guide for more details.
 
 ## Connecting to Jackal over SSH
 First make sure a router is set up. It shouldn't be connected to the UNB ethernet, but it may
@@ -257,6 +258,8 @@ For rosparams:
 For rosservice:
 - rosservice list
 - rosservice info /rosout_get_loggers
+
+I have pre-made a printout of ros topics and services in services_and_topics.txt
 
 ## The network bug
 One of the persistently frustrating parts of development is a particular network bug at UNB.
@@ -460,6 +463,17 @@ Some of them may be good starting points to find related work.
 
 What has been done is a few abstract drafts, the rest is up to you.
 
+# notes about the code
+## axis
+Normally we might think of the axis used to describe 3d space as x,y,z where x is side to side
+of some reference object, z is forwards, and y is up. This is not the case for the kinova arm.
+Instead: z is up, y is side to side, and x is forwards
 
+So for a given sequence, the euler angles (thetaX, thetaY, thetaZ) will generally have a static
+thetaY to keep the gripper in the same rotation, and only vary thetaX and thetaZ.
 
+To access the different axis, two methods are used in the code:
+if it is an object to be used directly by the rosservices, then someobject\["x"], or someobject\["thetaX"]
+if its an intermediate format for doing math upon (typically named "vec_...") then
+vec\[0], vec\[1], vec\[2]
 

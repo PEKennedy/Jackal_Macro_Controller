@@ -153,7 +153,15 @@ The webapp allows you to control the arm, and record sequences.
 Plug a controller into the micro-usb port, and turn the kinova arm on.
 
 ## Connecting to Jackal over SSH
-Follow the steps in the Jackal + unb007 manuals for setting up the ip of cpr-j100-0574.
+First make sure a router is set up. It shouldn't be connected to the UNB ethernet, but it may
+be connected to your computer for faster speeds, and its power switch should be turned on. On
+your computer, connect to 192.168.2.1. Use the supplied password, and login. Click on network
+map to see all the devices the router can see. Hopefully yours should be there. Click on your device
+and assign it a static ip for convenience.
+
+Follow the steps in the Jackal + unb007 manuals for setting up the ip of cpr-j100-0574 on your
+computer, the ip of 192.168.2.25, contrary to the document. IP changes were made to fix some
+networking issues.
 
 To connect to Jackal over SSH, you will need a computer with wifi, and a router setup in the HCI
 lab. Then in the terminal, run 'ssh administrator@cpr-j100-0574', password ... (ask).
@@ -327,8 +335,8 @@ python above) using the correct datatype.
 But notice how in the actual code, instead of creating an ExecuteAction type, nor even an Action
 type, we instead created an ExecuteActionRequest type to send to self.execute_action()?
 
-Well, I don't really know why either, searching the ros_kortex repository only brings up example
-code, rather than a definition for the type: https://github.com/Kinovarobotics/ros_kortex/search?q=ExecuteActionRequest
+The problem here is that searching the ros_kortex repository only brings up example code, rather
+than a definition for the type: https://github.com/Kinovarobotics/ros_kortex/search?q=ExecuteActionRequest
 So I had trouble getting most new rosservice types I saw and wanted to use to work (I was only
 ever able to add the stop type). For the most part, I would try to create objects like 
 req = SendTwistJoystickCommandRequest(), only to either get an error that I wasn't creating the
@@ -418,6 +426,8 @@ which presently does a subtraction on positions to find relative movement (allow
 heights, but never different directions). A new step would need to be added here which rotates
 the relative movement vector to face the direction of the gripper.
 
+A good starting point for vector rotation may be this: https://stackoverflow.com/questions/6802577/rotation-of-3d-vector
+
 One of the issues with adding or modifying actions is that the arm can easily get stuck.
 What happens is that the arm's software finds the arm can't reach a position, and so stops the arm,
 however, it doesn't send any notification (that I know of) about this, and continues "trying"
@@ -447,8 +457,6 @@ project.
 
 In paper_summaries.docx, you will find a few summaries, and some links to papers and search queries.
 Some of them may be good starting points to find related work.
-
-
 
 What has been done is a few abstract drafts, the rest is up to you.
 
